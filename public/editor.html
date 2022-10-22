@@ -46,6 +46,20 @@
         margin-bottom: 1rem;
       }
 
+      .new-group-wrapper {
+        padding: 0.5rem;
+        background-color: var(--yellow);
+        background-image: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.15),
+          rgba(255, 255, 255, 0)
+        );
+        border-radius: 0.3rem;
+        margin-bottom: 1rem;
+        display: flex;
+        width: 100%;
+      }
+
       .group-wrapper-alt {
         background-color: var(--teal);
       }
@@ -772,6 +786,207 @@
   <script>
     const faceWrapper = document.getElementById("face");
     const jsonElement = document.getElementById("json");
+
+    const htmlElements = [
+      {
+        group_name: "Body",
+        attributes: [
+          {
+            display: "Body",
+            type: "select",
+          },
+          {
+            display: "Skin Color",
+            type: "color",
+          },
+        ],
+      },
+      {
+        group_name: "Head",
+        attributes: [
+          {
+            display: "Head",
+            type: "select",
+          },
+          {
+            display: "Fatness",
+            type: "slider",
+            min: 0.0,
+            max: 1.0,
+          },
+        ],
+      },
+      {
+        group_name: "Lines",
+        attributes: [
+          {
+            display: "Misc Lines",
+            type: "select",
+          },
+          {
+            display: "Eye Lines",
+            type: "select",
+          },
+          {
+            display: "Smile Lines",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Smile Lines Size",
+                type: "slider",
+                min: 0.0,
+                max: 1.0,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        group_name: "Hair",
+        attributes: [
+          {
+            display: "Hair",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Flip",
+                type: "checkbox",
+              },
+            ],
+          },
+          {
+            display: "Color",
+            type: "color",
+          },
+          {
+            display: "Long Hair",
+            type: "select",
+          },
+        ],
+      },
+      {
+        group_name: "Facial Hair",
+        attributes: [
+          {
+            display: "Facial Hair",
+            type: "select",
+          },
+          {
+            display: "Shave",
+            type: "text",
+          },
+        ],
+      },
+      {
+        group_name: "Facial Attributes",
+        attributes: [
+          {
+            display: "Eyebrows",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Angle",
+                type: "slider",
+                min: 0,
+                max: 180,
+              },
+            ],
+          },
+          {
+            display: "Eyes",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Angle",
+                type: "slider",
+                min: 0,
+                max: 180,
+              },
+            ],
+          },
+          {
+            display: "Nose",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Flip",
+                type: "checkbox",
+              },
+              {
+                display: "Angle",
+                type: "slider",
+                min: 0,
+                max: 180,
+              },
+            ],
+          },
+          {
+            display: "Mouth",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Flip",
+                type: "checkbox",
+              },
+            ],
+          },
+          {
+            display: "Ears",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Size",
+                type: "sliper",
+                min: 0,
+                max: 1.0,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        group_name: "Accessories",
+        attributes: [
+          {
+            display: "Accessories",
+            type: "select",
+          },
+          {
+            display: "Glasses",
+            type: "select",
+          },
+        ],
+      },
+      {
+        group_name: "Jersey",
+        attributes: [
+          {
+            display: "Jersey",
+            type: "select",
+            sub_attribute: [
+              {
+                display: "Primary",
+                type: "color",
+              },
+              {
+                display: "Secondary",
+                type: "color",
+              },
+              {
+                display: "Accent",
+                type: "color",
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    console.log({
+      htmlElements: htmlElements,
+    });
+
+    define(["nunjucks"], function (nunjucks) {});
 
     document.getElementById("copy").addEventListener("click", () => {
       jsonElement.focus();
