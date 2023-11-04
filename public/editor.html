@@ -15,6 +15,10 @@
         margin-bottom: 3rem;
       }
 
+      #json {
+        height: 120px;
+      }
+
       #face {
         max-height: 450px;
         max-width: 300px;
@@ -31,6 +35,12 @@
         #face {
           height: 600px;
           width: 400px;
+        }
+      }
+      @media (min-width: 1300px) {
+        #face {
+          height: 675px;
+          width: 450px;
         }
       }
 
@@ -90,15 +100,13 @@
       <div class="d-md-flex">
         <div class="flex-grow-1">
           <div class="mb-4 mt-2 d-xl-flex">
-            <h1>
-              faces.js editor
-            </h1>
+            <h1>faces.js editor</h1>
             <div class="d-sm-flex align-items-center ml-xl-3">
               <div class="d-flex">
                 <select
                   id="option-race"
                   class="form-control mr-3"
-                  style="width: 100px;"
+                  style="width: 100px"
                 >
                   <option value="random">Random</option>
                   <option value="asian">Asian</option>
@@ -109,7 +117,7 @@
                 <select
                   id="option-gender"
                   class="form-control mr-3"
-                  style="width: 80px;"
+                  style="width: 80px"
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -136,6 +144,15 @@
                   id="check-none"
                 >
                   None
+                </button>
+              </div>
+              <div class="ml-sm-3 mt-2 mt-sm-0">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  id="see-gallery"
+                >
+                  Show Gallery
                 </button>
               </div>
             </div>
@@ -822,6 +839,67 @@
       const msg = successful ? "successful" : "unsuccessful";
       console.log("Copying text command was " + msg);
     });
+
+    document.getElementById("see-gallery").addEventListener("click", () => {
+      console.log("Show gallery", { faceWrapper });
+
+      let gallery_select = document.createElement("div");
+      gallery_select.id = "gallery-select";
+      gallery_select.innerHTML = `<select class="form-control mr-3" style="width:100px;" id="gallery-select-id"></select>`;
+
+      let gallery_display = document.createElement("div");
+      gallery_display.style.display = "flex";
+      gallery_display.style["flex-flow"] = "wrap";
+      gallery_display.id = "gallery-display";
+
+      for (const feature of Object.keys(faces.svgsIndex)) {
+        let option_element = document.createElement("option");
+        option_element.value = feature;
+        option_element.text = feature;
+        gallery_select.lastChild.appendChild(option_element);
+      }
+
+      faceWrapper.innerHTML = "";
+      faceWrapper.appendChild(gallery_select);
+      faceWrapper.appendChild(gallery_display);
+      console.log({ gallery_select, faceWrapper });
+
+      drawGallery(gallery_select.firstChild.value);
+
+      gallery_select.addEventListener("change", (event) => {
+        drawGallery(event.target.value);
+      });
+    });
+
+    const drawGallery = (feature) => {
+      console.log("Draw gallery", { feature });
+
+      let gallery = document.getElementById("gallery-display");
+      gallery.innerHTML = "";
+
+      const options = faces.svgsIndex[feature];
+      for (let option of options) {
+        let new_face_for_option = document.createElement("div");
+        new_face_for_option.style.height = "180px";
+        new_face_for_option.style.width = "120px";
+        new_face_for_option.id = "new-face-for-option-" + option;
+        gallery.appendChild(new_face_for_option);
+        //let face = faces.generate(undefined, {[feature]: option});
+        let temp_face = JSON.parse(JSON.stringify(face));
+        faces.display(new_face_for_option, temp_face, {
+          [feature]: { id: option },
+        });
+
+        console.log("Iin option", {
+          option,
+          new_face_for_option,
+          face,
+          feature,
+          gallery,
+          override: { [feature]: { id: option } },
+        });
+      }
+    };
 
     const generateFace = () => {
       const options = {

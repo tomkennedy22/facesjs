@@ -257,6 +257,8 @@ export const display = (
 ) => {
   override(face, overrides);
 
+  console.log("Display", { container, face, overrides });
+
   const containerElement =
     typeof container === "string"
       ? document.getElementById(container)
