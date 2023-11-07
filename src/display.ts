@@ -365,6 +365,10 @@ const drawFeature = (
     face.hair.color
   );
   featureSVGString = featureSVGString.replace(
+    /\$\[eyeColor\]/g,
+    face.eye.color
+  );
+  featureSVGString = featureSVGString.replace(
     /\$\[primary\]/g,
     face.teamColors[0]
   );
@@ -463,16 +467,20 @@ const drawFeature = (
   }
 };
 
+const setDefaultFeatures = (face: Face) => {
+  face.teamColors = face.teamColors || ["#89bfd3", "#7a1319", "#07364f"];
+  face.eye.color = face.eye.color || "#2e1d1e";
+  face.eyeDistance = face.eyeDistance || 1.0;
+  face.lineOpacity = face.lineOpacity || 0;
+};
+
 export const buildSVGString = (
   face: Face,
   overrides: Overrides,
   containerElement: any
 ) => {
   override(face, overrides);
-
-  face.teamColors = face.teamColors || ["#89bfd3", "#7a1319", "#07364f"];
-  face.eyeDistance = face.eyeDistance || 1.0;
-  face.lineOpacity = face.lineOpacity || 0;
+  setDefaultFeatures(face);
 
   let svg = buildBaseSVG(containerElement);
 

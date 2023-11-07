@@ -58,17 +58,40 @@ const colors = {
       "#e9c67b",
       "#D7BF91",
     ],
+    eyes: [
+      "#739ac5",
+      "#6d8aa8",
+      "#7b9eb4",
+      "#56738f",
+      "#728c62",
+      "#5d4037",
+      "#6d4c41",
+      "#7e5e52",
+      "#a7856a",
+      "#9c7f64",
+      "#6e511e",
+      "#9da4ad",
+      "#3a282a",
+      "#312923",
+      "#2c2a29",
+    ],
   },
   asian: {
     // https://imgur.com/a/GrBuWYw
     skin: ["#fedac7", "#f0c5a3", "#eab687"],
     hair: ["#272421", "#0f0902"],
+    eyes: ["#3a282a", "#312923", "#2c2a29", "#6d4c41", "#795548"],
   },
   brown: {
     skin: ["#bb876f", "#aa816f", "#a67358"],
     hair: ["#272421", "#1c1008"],
+    eyes: ["#3a282a", "#312923", "#2c2a29"],
   },
-  black: { skin: ["#ad6453", "#74453d", "#5c3937"], hair: ["#272421"] },
+  black: {
+    skin: ["#ad6453", "#74453d", "#5c3937"],
+    hair: ["#272421"],
+    eyes: ["#3a282a", "#312923", "#2c2a29"],
+  },
 };
 
 const defaultTeamColors = ["#89bfd3", "#7a1319", "#07364f"];
@@ -115,6 +138,8 @@ export const generate = (
     palette.skin[Math.floor(Math.random() * palette.skin.length)];
   const hairColor =
     palette.hair[Math.floor(Math.random() * palette.hair.length)];
+  const eyeColor =
+    palette.eyes[Math.floor(Math.random() * palette.eyes.length)];
   const isFlipped = Math.random() < 0.5;
 
   const { hairR, hairG, hairB } = colorHexToRGB(hairColor);
@@ -176,6 +201,7 @@ export const generate = (
     eye: {
       id: getID("eye", gender),
       angle: eyeAngle,
+      color: eyeColor,
     },
     eyebrow: {
       id: getID("eyebrow", gender),

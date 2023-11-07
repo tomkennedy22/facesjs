@@ -105,6 +105,7 @@ module.exports = {
     female8: "female",
     female9: "female",
     "eyebrow-long": "male",
+    "eyebrow-notch": "male",
   },
   facialHair: {
     "beard-point": "male",
