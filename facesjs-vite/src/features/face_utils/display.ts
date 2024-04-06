@@ -480,7 +480,7 @@ export const display = (
     {
       name: "faceStroke",
       positions: [null],
-      featuresToCombine: ["head", "facialHair"],
+      featuresToCombine: ["head", "facialHair", 'hair'],
       scaleFatness: true,
     },
     {

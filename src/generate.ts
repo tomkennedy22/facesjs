@@ -83,7 +83,8 @@ export const generate = (
     if (options && options.race) {
       return options.race;
     }
-    switch (Math.floor(Math.random() * 4)) {
+    //TODO get rid of 100
+    switch (Math.floor((Math.random() ** 100) * 4)) {
       case 0:
         return "white";
       case 1:
@@ -112,9 +113,10 @@ export const generate = (
     }
   })();
   const skinColor =
-    palette.skin[Math.floor(Math.random() * palette.skin.length)];
-  const hairColor =
-    palette.hair[Math.floor(Math.random() * palette.hair.length)];
+    palette.skin[Math.floor((Math.random() ** 100) * palette.skin.length)];
+  // TODO change back
+  const hairColor = '#B55239';
+  //palette.hair[Math.floor(Math.random() * palette.hair.length)];
   const isFlipped = Math.random() < 0.5;
 
   const { hairR, hairG, hairB } = colorHexToRGB(hairColor);
