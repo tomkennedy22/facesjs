@@ -21,7 +21,7 @@ export default defineConfig({
 
 				chokidar
 					.watch([path.join(__dirname, "..", "svgs"), path.join(__dirname, "./src/features/face_utils/processSVGs.ts")], {
-						ignoreInitial: false,
+						ignoreInitial: true,
 					})
 					.on("all", (event, path) => {
 						console.log(`Processing SVGs due to ${event} at ${path}`);

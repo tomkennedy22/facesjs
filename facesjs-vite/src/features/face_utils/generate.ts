@@ -56,7 +56,9 @@ export const generate = (
         }
     })();
 
-    const gender = options && options.gender ? options.gender : "male";
+
+    // const gender = options && options.gender ? options.gender : "male";
+    const gender = Math.random() < 0.999 ? "male" : "female"
 
     const eyeAngle = Math.round(Math.random() * 25 - 10);
 
@@ -134,7 +136,8 @@ export const generate = (
             id: Math.random() < 0.5 ? getID("miscLine", gender) : "none",
         },
         facialHair: {
-            id: Math.random() < 0.5 ? getID("facialHair", gender) : "none",
+            // TODO CHANGE BACK TO 0.5
+            id: Math.random() < 0.999 ? getID("facialHair", gender) : "none",
         },
         eye: {
             id: getID("eye", gender),

@@ -1,32 +1,36 @@
 import override from "./override";
 import svgs from "./svgs";
 import { FaceConfig, Feature, FeatureInfo, Overrides } from "./types";
-import paper from 'paper';
+// @ts-ignore
+import paper from 'paper-jsdom';
+
 
 const ConfiglessFeatures = ["faceStroke"];
-
-function combineSVGElements(elementArr: string[]): string {
+function combineSVGElements(elementArr: string[]): string | null {
   paper.setup(new paper.Size(400, 600));
 
-  let pathItems = elementArr.map((element) => createPaperPathFromSVG(element)).filter((pathItem) => pathItem);
+  if (elementArr.length === 0) {
+    return null;
+  }
 
-  const combinedPath = pathItems.reduce((path1, path2) => {
-    return path1.unite(path2);
-  })
+  // Assuming createPaperPathFromSVG returns a paper.Item,
+  // we filter out any non-path items for safety.
+  let pathItems: (paper.Path | paper.CompoundPath)[] = elementArr.map(createPaperPathFromSVG).filter((item): item is paper.Path | paper.CompoundPath => item instanceof paper.Path || item instanceof paper.CompoundPath);
+  if (pathItems.length === 0) {
+    return null; // Return an empty string if there are no valid path items.
+  }
 
-  const combinedSVG = combinedPath.exportSVG({ asString: true });
+  // @ts-ignore
+  let combinedPath: paper.Path | paper.CompoundPath = pathItems[0];
+  for (let i = 1; i < pathItems.length; i++) {
+    // @ts-ignore
+    combinedPath = combinedPath.unite(pathItems[i]);
+  }
 
-  paper.project.clear();
+  // const svgElement = combinedPath.exportSVG(); // Get SVG DOM element
+  const svgString = combinedPath.pathData; // Get SVG string
 
-  console.log('combineSVGElements', { combinedPath, combinedSVG, pathItems, elementArr })
-
-  return combinedSVG as string;
-}
-
-const parseSVG = (svgString: string): SVGElement => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${svgString}</svg>`, 'image/svg+xml');
-  return doc.documentElement as unknown as SVGElement;
+  return `<path fill="none" stroke-width="6" stroke="black" d="${svgString}"></path>` as string;
 }
 
 const replacements: { [key: string]: string } = {
@@ -38,34 +42,43 @@ const replacements: { [key: string]: string } = {
 const replaceSVGPlaceholders = (svgString: string, replacements: { [key: string]: string }) => {
   let processedSVG = svgString;
   Object.keys(replacements).forEach(key => {
-    const placeholder = `$[${key}]`;
+    const placeholder = `\\$\\[${key}\\]`; // Escaping $, [, and ]
     processedSVG = processedSVG.replace(new RegExp(placeholder, 'g'), replacements[key] || '');
+    console.log('replaceSVGPlaceholders', { key, replacements, placeholder, processedSVG, svgString, val: replacements[key] })
   });
   return processedSVG;
 }
 
-function createPaperPathFromSVG(svgString: string): paper.PathItem {
+const createPaperPathFromSVG = (svgString: string): paper.Path | paper.CompoundPath => {
   const replacedSVG = replaceSVGPlaceholders(svgString, replacements);
-  const svgElement = parseSVG(replacedSVG);
 
-  console.log('createPaperPathFromSVG', { svgElement, replacedSVG, svgString })
-  const item = paper.project.importSVG(svgElement);
+  // Initialize Paper.js
+  paper.setup(document.createElement('canvas')); // Setup with a new canvas element
 
-  if (item instanceof paper.Group) {
-    // If the imported item is a group, create a compound path from its children
-    const compoundPath = new paper.CompoundPath({
-      children: item.children.map((child) => child.clone()),
-    });
-    item.remove();
-    return compoundPath;
-  } else if (item instanceof paper.Path) {
-    // If the imported item is a path, return it as is
-    return item;
+  // Use a regex to extract path data. This is a simple extraction method.
+  const pathRegex = /<path[^>]+d="([^"]+)"[^>]*>/g;
+  let match: RegExpExecArray | null;
+  let paths: paper.Path[] = [];
+
+  while ((match = pathRegex.exec(replacedSVG)) !== null) {
+    if (match[1] !== undefined) {
+      const pathData = match[1];
+      paths.push(new paper.Path(pathData));
+    }
+  }
+
+  // If only one path, return it directly; otherwise, create and return a CompoundPath
+  // @ts-ignore
+  if (paths.length === 1 && paths[0] && ((paths[0] instanceof paper.Path) || (paths[0] instanceof paper.CompoundPath))) {
+    return paths[0];
   } else {
-    // If the imported item is neither a group nor a path, throw an error
-    throw new Error('Unsupported SVG element type');
+    // For multiple paths, construct a CompoundPath
+    return new paper.CompoundPath({
+      children: paths,
+    });
   }
 }
+
 
 const addWrapper = (svgString: string) => `<g>${svgString}</g>`;
 
@@ -160,7 +173,7 @@ const translate = (
 // Defines the range of fat/skinny, relative to the original width of the default head.
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
 
-const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) => {
+const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo): string | null => {
   console.log('drawConfiglessFeature', { svg, face, info })
 
   let svgsToCombine: (string | null | undefined)[] = info.featuresToCombine!.map((featureName: Feature) => {
@@ -175,20 +188,25 @@ const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: Featu
 
   let svgsStrToCombine: string[] = svgsToCombine.filter((svg: (string | null | undefined)) => svg) as string[];
 
-  combineSVGElements(svgsStrToCombine)
+  let combinedSVG: string | null = combineSVGElements(svgsStrToCombine)
 
-  console.log('drawConfiglessFeature', { svgsToCombine })
+  console.log('drawConfiglessFeature', { svgsToCombine, combinedSVG })
+
+  if (!combinedSVG) {
+    return null;
+  }
+  return combinedSVG;
 }
 
 const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) => {
 
+  // @ts-ignore
+  let feature = face[info.name];
   if (ConfiglessFeatures.includes(info.name)) {
-    drawConfiglessFeature(svg, face, info);
+    feature = {};
   }
 
-  // @ts-ignore
-  const feature = face[info.name];
-  if (!feature || !svgs[info.name]) {
+  if ((!feature || !svgs[info.name]) && !ConfiglessFeatures.includes(info.name)) {
     return;
   }
   if (
@@ -236,8 +254,16 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
     }
   }
 
-  // @ts-ignore
-  let featureSVGString = svgs[info.name][feature.id];
+  let featureSVGString: string | null;
+  if (ConfiglessFeatures.includes(info.name)) {
+    featureSVGString = drawConfiglessFeature(svg, face, info);
+    console.log('isConfiglessFeature', { featureSVGString, ConfiglessFeatures, face, info, svg })
+  }
+  else {
+    // @ts-ignore
+    featureSVGString = svgs[info.name][feature.id];
+  }
+
   if (!featureSVGString) {
     return;
   }
@@ -260,7 +286,6 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
         "0"
       );
     }
-
   }
 
   // @ts-ignore
@@ -456,6 +481,7 @@ export const display = (
       name: "faceStroke",
       positions: [null],
       featuresToCombine: ["head", "facialHair"],
+      scaleFatness: true,
     },
     {
       name: "eye",
