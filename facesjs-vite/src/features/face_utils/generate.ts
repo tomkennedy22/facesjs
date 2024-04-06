@@ -16,9 +16,14 @@ import { FaceConfig, Feature, Gender, Overrides, Race, TeamColors } from "./type
 // };
 
 const getID = (type: Feature, gender: Gender): string => {
-    const validIDs = svgsIndex[type].filter((_, index) => {
+
+    if (!svgsIndex[type]) {
+        return 'none';
+    }
+
+    const validIDs = svgsIndex[type]!.filter((_, index) => {
         return (
-            svgsGenders[type][index] === "both" || svgsGenders[type][index] === gender
+            svgsGenders[type]![index] === "both" || svgsGenders[type]![index] === gender
         );
     });
 

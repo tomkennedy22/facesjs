@@ -10,6 +10,7 @@ import { generate } from "../features/face_utils/generate";
 import { Canvg } from 'canvg';
 import { faceToSvgString } from "../features/face_utils/faceToSvgString";
 
+
 import {
     Select, Input, InputGroup, Switch, Tooltip, ToastContainer, useToast, Modal, Card, Button, FormControl, Textarea
 } from '@rewind-ui/core';
@@ -32,9 +33,8 @@ const MainFaceDisplay = (): JSX.Element => {
     );
 }
 
+
 const EditorPageToolbarAndGallery = (): JSX.Element => {
-
-
 
     return (
         <>

@@ -1,6 +1,71 @@
 import override from "./override";
 import svgs from "./svgs";
-import { FaceConfig, FeatureInfo, Overrides } from "./types";
+import { FaceConfig, Feature, FeatureInfo, Overrides } from "./types";
+import paper from 'paper';
+
+const ConfiglessFeatures = ["faceStroke"];
+
+function combineSVGElements(elementArr: string[]): string {
+  paper.setup(new paper.Size(400, 600));
+
+  let pathItems = elementArr.map((element) => createPaperPathFromSVG(element)).filter((pathItem) => pathItem);
+
+  const combinedPath = pathItems.reduce((path1, path2) => {
+    return path1.unite(path2);
+  })
+
+  const combinedSVG = combinedPath.exportSVG({ asString: true });
+
+  paper.project.clear();
+
+  console.log('combineSVGElements', { combinedPath, combinedSVG, pathItems, elementArr })
+
+  return combinedSVG as string;
+}
+
+const parseSVG = (svgString: string): SVGElement => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${svgString}</svg>`, 'image/svg+xml');
+  return doc.documentElement as unknown as SVGElement;
+}
+
+const replacements: { [key: string]: string } = {
+  skinColor: '#ffffff', // Example skin color
+  hairColor: '#000000', // Example hair color
+  shaveOpacity: '0.5', // Example opacity
+};
+
+const replaceSVGPlaceholders = (svgString: string, replacements: { [key: string]: string }) => {
+  let processedSVG = svgString;
+  Object.keys(replacements).forEach(key => {
+    const placeholder = `$[${key}]`;
+    processedSVG = processedSVG.replace(new RegExp(placeholder, 'g'), replacements[key] || '');
+  });
+  return processedSVG;
+}
+
+function createPaperPathFromSVG(svgString: string): paper.PathItem {
+  const replacedSVG = replaceSVGPlaceholders(svgString, replacements);
+  const svgElement = parseSVG(replacedSVG);
+
+  console.log('createPaperPathFromSVG', { svgElement, replacedSVG, svgString })
+  const item = paper.project.importSVG(svgElement);
+
+  if (item instanceof paper.Group) {
+    // If the imported item is a group, create a compound path from its children
+    const compoundPath = new paper.CompoundPath({
+      children: item.children.map((child) => child.clone()),
+    });
+    item.remove();
+    return compoundPath;
+  } else if (item instanceof paper.Path) {
+    // If the imported item is a path, return it as is
+    return item;
+  } else {
+    // If the imported item is neither a group nor a path, throw an error
+    throw new Error('Unsupported SVG element type');
+  }
+}
 
 const addWrapper = (svgString: string) => `<g>${svgString}</g>`;
 
@@ -95,8 +160,33 @@ const translate = (
 // Defines the range of fat/skinny, relative to the original width of the default head.
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
 
+const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) => {
+  console.log('drawConfiglessFeature', { svg, face, info })
+
+  let svgsToCombine: (string | null | undefined)[] = info.featuresToCombine!.map((featureName: Feature) => {
+    // @ts-ignore
+    const feature = face[featureName];
+    if (!feature || !svgs[featureName]) {
+      return null;
+    }
+    // @ts-ignore
+    return svgs[featureName][feature.id];
+  })
+
+  let svgsStrToCombine: string[] = svgsToCombine.filter((svg: (string | null | undefined)) => svg) as string[];
+
+  combineSVGElements(svgsStrToCombine)
+
+  console.log('drawConfiglessFeature', { svgsToCombine })
+}
 
 const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) => {
+
+  if (ConfiglessFeatures.includes(info.name)) {
+    drawConfiglessFeature(svg, face, info);
+  }
+
+  // @ts-ignore
   const feature = face[info.name];
   if (!feature || !svgs[info.name]) {
     return;
@@ -188,7 +278,7 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
   featureSVGString = featureSVGString.replace("$[skinColor]", face.body.color);
   featureSVGString = featureSVGString.replace(
     /\$\[hairColor\]/g,
-    face.hair.color,
+    face.hair.color || 'black',
   );
   featureSVGString = featureSVGString.replace(
     /\$\[primary\]/g,
@@ -289,6 +379,7 @@ export const display = (
   face: FaceConfig,
   overrides?: Overrides,
 ): void => {
+
   override(face, overrides);
 
   const containerElement =
@@ -362,6 +453,11 @@ export const display = (
       scaleFatness: true,
     },
     {
+      name: "faceStroke",
+      positions: [null],
+      featuresToCombine: ["head", "facialHair"],
+    },
+    {
       name: "eye",
       positions: [
         [140, 310],
@@ -399,7 +495,7 @@ export const display = (
       name: "accessories",
       positions: [null],
       scaleFatness: true,
-    },
+    }
   ];
 
   for (const info of featureInfos) {

@@ -4,7 +4,7 @@ import { optimize } from 'svgo';
 import genders from './genders';
 import { Feature } from './types';
 
-const warning = "// THIS IS A GENERATED FILE, DO NOT EDIT BY HAND!\n// See utils/processSVGs.ts";
+const warning = "// THIS IS A GENERATED FILE, DO NOT EDIT BY HAND!\n// See utils/processSVGs.ts\n";
 
 const processSVGs = async () => {
     const svgFolder = path.join(__dirname, '..', '..', '..', '..', 'svgs');
@@ -27,7 +27,9 @@ const processSVGs = async () => {
         }
     }
 
-    await fs.writeFile(path.join(__dirname, 'svgs.ts'), `${warning}\n\nexport default ${JSON.stringify(svgs)};`);
+    let svgFilePath = path.join(__dirname, 'svgs.ts');
+    await fs.writeFile(svgFilePath, `${warning}\nimport { Feature } from "./types";\n\nconst svgs: {[key in Feature]?: {[key:string]: string}} = ${JSON.stringify(svgs)};\n\n export default svgs;`);
+    console.log(`Wrote new file for svgs.ts at ${svgFilePath} at time ${new Date().toISOString()}`);
 
     const svgsIndex: { [key in Feature]?: string[] } = Object.keys(svgs).reduce((acc, key) => ({
         ...acc,
@@ -41,7 +43,10 @@ const processSVGs = async () => {
         return { ...acc, [faceSection]: keyGenders };
     }, {});
 
-    await fs.writeFile(path.join(__dirname, 'svgs-index.ts'), `${warning}\n\nexport const svgsIndex = ${JSON.stringify(svgsIndex)};\n\nexport const svgsGenders = ${JSON.stringify(svgsGenders)};`);
+    console.log('hello? tommy 3')
+    let svgIndexFilePath = path.join(__dirname, 'svgs-index.ts');
+    await fs.writeFile(svgIndexFilePath, `${warning}import { Feature, GenderOptions } from "./types";\n\n\nexport const svgsIndex: {[key in Feature]?: string[]} = ${JSON.stringify(svgsIndex)};\n\nexport const svgsGenders: {[key in Feature]?: GenderOptions[]} = ${JSON.stringify(svgsGenders)};`);
+    console.log(`Wrote new file for svgs-index.ts at ${svgIndexFilePath} at time ${new Date().toISOString()}`);
 };
 
 export default processSVGs;
