@@ -478,12 +478,6 @@ export const display = (
       scaleFatness: true,
     },
     {
-      name: "faceStroke",
-      positions: [null],
-      featuresToCombine: ["head", "facialHair", 'hair'],
-      scaleFatness: true,
-    },
-    {
       name: "eye",
       positions: [
         [140, 310],
@@ -510,6 +504,12 @@ export const display = (
     {
       name: "hair",
       positions: [null],
+      scaleFatness: true,
+    },
+    {
+      name: "faceStroke",
+      positions: [null],
+      featuresToCombine: ["head", "facialHair", 'hair'],
       scaleFatness: true,
     },
     {
