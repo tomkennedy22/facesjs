@@ -38,6 +38,7 @@ class SvgNode {
   public childNodes: SvgNode[] = [];
 
   public lastChild: SvgNode | undefined;
+  public firstChild: SvgNode | undefined;
   private minX: number | undefined;
   private minY: number | undefined;
   private maxX: number | undefined;
@@ -94,8 +95,20 @@ class SvgNode {
   }
 
   insertAdjacentHTML(position: string, content: string) {
-    this.lastChild = new SvgNode(undefined, content);
-    this.childNodes.push(this.lastChild);
+    let childToAdd = new SvgNode(undefined, content);
+
+    if (position === "beforeend") {
+      this.childNodes.push(childToAdd);
+    }
+    else if (position === "beforebegin") {
+      this.childNodes.unshift(childToAdd);
+    }
+    else {
+      this.childNodes.push(childToAdd);
+    }
+
+    this.lastChild = this.childNodes[this.childNodes.length - 1];
+    this.firstChild = this.childNodes[0];
   }
 
   getBBox() {

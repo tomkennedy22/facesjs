@@ -3,10 +3,11 @@ import svgs from "./svgs";
 import { FaceConfig, Feature, FeatureInfo, Overrides } from "./types";
 // @ts-ignore
 import paper from 'paper-jsdom';
+import { get_from_dict } from "./utils";
 
 
 const ConfiglessFeatures = ["faceStroke"];
-function combineSVGElements(elementArr: string[]): string | null {
+function combineSVGStrings(elementArr: string[]): string | null {
   paper.setup(new paper.Size(400, 600));
 
   if (elementArr.length === 0) {
@@ -31,6 +32,47 @@ function combineSVGElements(elementArr: string[]): string | null {
   const svgString = combinedPath.pathData; // Get SVG string
 
   return `<path fill="none" stroke-width="6" stroke="black" d="${svgString}"></path>` as string;
+}
+
+const combineSVGElements = (parentElement: SVGSVGElement): SVGGraphicsElement | null => {
+
+  // @ts-ignore
+  console.log('Starting combineSVGElements', { parentElement, xml: parentElement.toXml() })
+  paper.setup(new paper.Size(400, 600));
+  // @ts-ignore
+  paper.project.importSVG(parentElement.toXml()
+    // , {
+    //   onLoad: function (item: any) {
+    //     console.log('combineSVGElements onLoad', { item })
+    //     // Assuming `item` contains the imported SVG with its structure
+    //     let unifiedPath = new paper.Path();
+
+    //     // Iterate over all children if the imported SVG is a group
+    //     item.children.forEach((child: any) => {
+    //       // This example assumes all children are paths or compound paths.
+    //       // In practice, you might need a recursive function to handle nested groups.
+    //       unifiedPath = unifiedPath.unite(child.toPath());
+    //     });
+
+    //     console.log('combineSVGElements unifiedPath', { unifiedPath, item })
+
+    //     // Apply a stroke to the unified path
+    //     unifiedPath.strokeColor = 'black';
+    //     unifiedPath.strokeWidth = 2;
+
+    //     // If you need to perform operations with the unified path or export it
+    //     console.log(unifiedPath.exportSVG({ asString: true }));
+
+    //     // Remove original item to leave only the unified stroke path
+    //     item.remove();
+    //   }
+    // });
+
+  );
+
+  console.log('combineSVGElements', { parentElement, paper, project: paper.project })
+
+  return null
 }
 
 const replacements: { [key: string]: string } = {
@@ -121,6 +163,7 @@ const scaleStrokeWidthAndChildren = (
 // Scale relative to the center of bounding box of element e, like in Raphael.
 // Set x and y to 1 and this does nothing. Higher = bigger, lower = smaller.
 const scaleCentered = (element: SVGGraphicsElement, x: number, y: number) => {
+  console.log('scaleCentered', { element, x, y })
   const bbox = element.getBBox();
   const cx = bbox.x + bbox.width / 2;
   const cy = bbox.y + bbox.height / 2;
@@ -172,21 +215,21 @@ const translate = (
 // Defines the range of fat/skinny, relative to the original width of the default head.
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
 
-const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo): string | null => {
+const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo): SVGSVGElement | null => {
 
-  let svgsToCombine: (string | null | undefined)[] = info.featuresToCombine!.map((featureName: Feature) => {
-    // @ts-ignore
-    const feature = face[featureName];
-    if (!feature || !svgs[featureName]) {
-      return null;
-    }
-    // @ts-ignore
-    return svgs[featureName][feature.id];
-  })
+  // let svgsToCombine: (string | null | undefined)[] = info.featuresToCombine!.map((featureName: Feature) => {
+  //   // @ts-ignore
+  //   const feature = face[featureName];
+  //   if (!feature || !svgs[featureName]) {
+  //     return null;
+  //   }
+  //   // @ts-ignore
+  //   return svgs[featureName][feature.id];
+  // })
 
-  let svgsStrToCombine: string[] = svgsToCombine.filter((svg: (string | null | undefined)) => svg) as string[];
+  // let svgsStrToCombine: string[] = svgsToCombine.filter((svg: (string | null | undefined)) => svg) as string[];
 
-  let combinedSVG: string | null = combineSVGElements(svgsStrToCombine)
+  let combinedSVG: SVGSVGElement = combineSVGElements(svg) as SVGSVGElement
 
   if (!combinedSVG) {
     return null;
@@ -198,11 +241,8 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
 
   // @ts-ignore
   let feature = face[info.name];
-  if (ConfiglessFeatures.includes(info.name)) {
-    feature = {};
-  }
 
-  if ((!feature || !svgs[info.name]) && !ConfiglessFeatures.includes(info.name)) {
+  if ((!feature || !svgs[info.name])) {
     return;
   }
   if (
@@ -250,14 +290,8 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
     }
   }
 
-  let featureSVGString: string | null;
-  if (ConfiglessFeatures.includes(info.name)) {
-    featureSVGString = drawConfiglessFeature(svg, face, info);
-  }
-  else {
-    // @ts-ignore
-    featureSVGString = svgs[info.name][feature.id];
-  }
+  // @ts-ignore
+  let featureSVGString: string | null = svgs[info.name][feature.id]
 
   if (!featureSVGString) {
     return;
@@ -314,9 +348,24 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
   );
 
   const bodySize = face.body.size !== undefined ? face.body.size : 1;
+  let insertPosition: "beforebegin" | "beforeend" = info.placeBeginning ? "beforebegin" : "beforeend";
+  let whichChild: 'firstChild' | 'lastChild' = insertPosition == "beforebegin" ? 'firstChild' : 'lastChild';
+
+  const calcChildElement = () => {
+    if (insertPosition === "beforebegin") {
+      return svg.firstChild;
+    } else {
+      return svg.lastChild;
+    }
+  }
+
+  let childElement = calcChildElement() as SVGSVGElement
 
   for (let i = 0; i < info.positions.length; i++) {
-    svg.insertAdjacentHTML("beforeend", addWrapper(featureSVGString));
+    svg.insertAdjacentHTML(insertPosition, addWrapper(featureSVGString));
+    childElement = calcChildElement() as SVGSVGElement;
+
+    console.log('Test whichchild', { t: childElement, svg, whichChild, insertPosition, feature, featureSVGString, i, info })
 
     const position = info.positions[i];
 
@@ -344,7 +393,7 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
       }
 
       translate(
-        svg.lastChild as SVGGraphicsElement,
+        childElement as SVGGraphicsElement,
         position[0],
         position[1],
         xAlign,
@@ -353,7 +402,7 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
 
     if (feature.hasOwnProperty("angle")) {
       // @ts-ignore
-      rotateCentered(svg.lastChild, (i === 0 ? 1 : -1) * feature.angle);
+      rotateCentered(childElement, (i === 0 ? 1 : -1) * feature.angle);
     }
 
     // Flip if feature.flip is specified or if this is the second position (for eyes and eyebrows). Scale if feature.size is specified.
@@ -361,26 +410,26 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
     const scale = feature.hasOwnProperty("size") ? feature.size : 1;
     if (info.name === "body" || info.name === "jersey") {
       // @ts-ignore
-      scaleCentered(svg.lastChild, bodySize, 1);
+      scaleCentered(childElement, bodySize, 1);
       // @ts-ignore
     } else if (feature.flip || i === 1) {
       // @ts-ignore
-      scaleCentered(svg.lastChild, -scale, scale);
+      scaleCentered(childElement, -scale, scale);
     } else if (scale !== 1) {
       // @ts-ignore
-      scaleCentered(svg.lastChild, scale, scale);
+      scaleCentered(childElement, scale, scale);
     }
 
     if (info.opaqueLines) {
       // @ts-ignore
-      svg.lastChild.setAttribute("stroke-opacity", String(face.lineOpacity));
+      childElement.setAttribute("stroke-opacity", String(face.lineOpacity));
     }
 
     if (info.scaleFatness && info.positions[0] !== null) {
       // Scale individual feature relative to the edge of the head. If fatness is 1, then there are 47 pixels on each side. If fatness is 0, then there are 78 pixels on each side.
       const distance = (78 - 47) * (1 - face.fatness);
       // @ts-ignore
-      translate(svg.lastChild, distance, 0, "left", "top");
+      translate(childElement, distance, 0, "left", "top");
     }
   }
 
@@ -390,7 +439,15 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
     info.positions[0] === null
   ) {
     // @ts-ignore
-    scaleCentered(svg.lastChild, fatScale(face.fatness), 1);
+    scaleCentered(childElement, fatScale(face.fatness), 1);
+  }
+
+  if (info.drawStrokeAfter) {
+    // @ts-ignore
+    childElement.setAttribute("stroke-width", "12");
+    childElement.setAttribute("stroke", "black");
+    svg.setAttribute("stroke", "black");
+    svg.setAttribute("outer-stroke", "12");
   }
 };
 
@@ -399,6 +456,8 @@ export const display = (
   face: FaceConfig,
   overrides?: Overrides,
 ): void => {
+
+  let startTime = new Date().getTime();
 
   override(face, overrides);
 
@@ -423,27 +482,6 @@ export const display = (
   containerElement.appendChild(svg);
 
   const featureInfos: FeatureInfo[] = [
-    {
-      name: "hairBg",
-      positions: [null],
-      scaleFatness: true,
-    },
-    {
-      name: "body",
-      positions: [null],
-    },
-    {
-      name: "jersey",
-      positions: [null],
-    },
-    {
-      name: "ear",
-      positions: [
-        [55, 325] as [number, number],
-        [345, 325] as [number, number],
-      ],
-      scaleFatness: true,
-    },
     {
       name: "head",
       positions: [null], // Meaning it just gets placed into the SVG with no translation
@@ -500,12 +538,7 @@ export const display = (
       name: "hair",
       positions: [null],
       scaleFatness: true,
-    },
-    {
-      name: "faceStroke",
-      positions: [null],
-      featuresToCombine: ["head", "facialHair", 'hair'],
-      scaleFatness: true,
+      drawStrokeAfter: true,
     },
     {
       name: "glasses",
@@ -516,10 +549,38 @@ export const display = (
       name: "accessories",
       positions: [null],
       scaleFatness: true,
-    }
+    },
+    {
+      name: "ear",
+      positions: [
+        [55, 325] as [number, number],
+        [345, 325] as [number, number],
+      ],
+      scaleFatness: true,
+      placeBeginning: true,
+    },
+    {
+      name: "hairBg",
+      positions: [null],
+      scaleFatness: true,
+      placeBeginning: true,
+    },
+    {
+      name: "jersey",
+      positions: [null],
+      placeBeginning: true,
+    },
+    {
+      name: "body",
+      positions: [null],
+      placeBeginning: true,
+    },
   ];
 
   for (const info of featureInfos) {
     drawFeature(svg, face, info);
   }
+
+  let endTime = new Date().getTime();
+  console.log(`Display time: ${endTime - startTime}ms`);
 };

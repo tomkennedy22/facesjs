@@ -366,7 +366,7 @@ const genders: { [key in Feature]: { [key: string]: GenderOptions } } = {
     line3: "both",
     line4: "both",
     none: "both",
-  },
+  }
 };
 
 export default genders;

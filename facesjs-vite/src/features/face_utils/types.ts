@@ -26,7 +26,7 @@ export type Feature =
     | "mouth"
     | "nose"
     | "smileLine"
-    | "faceStroke";
+    ;
 
 export type Race = "asian" | "black" | "brown" | "white";
 
@@ -38,6 +38,8 @@ export type FeatureInfo = {
     shiftWithEyes?: boolean;
     opaqueLines?: boolean;
     featuresToCombine?: Feature[];
+    placeBeginning?: boolean;
+    drawStrokeAfter?: boolean;
 };
 
 // export type FaceConfigSections = Exclude<keyof FaceConfig, FaceConfigGlobalAttrs>;

@@ -23,9 +23,17 @@ export const memoizeWithDeepComparison = <Fn extends (...args: any[]) => any>(fn
 };
 
 const faceToSvgStringMemoized = memoizeWithDeepComparison(faceToSvgString);
+let DO_MEMOIZE = true;
 
 export const Face: React.FC<{ faceConfig: FaceConfig, overrides?: Overrides, width?: number }> = ({ faceConfig, overrides, width }) => {
-    const faceSvg = faceToSvgStringMemoized(faceConfig, overrides);
+
+    let faceSvg;
+    if (!DO_MEMOIZE) {
+        faceSvg = faceToSvgString(faceConfig, overrides);
+    }
+    else {
+        faceSvg = faceToSvgStringMemoized(faceConfig, overrides);
+    }
 
     console.log('flattenDict', { flattenDictFaceConfig: flattenDict(faceConfig), faceConfig, overrides, width })
 
