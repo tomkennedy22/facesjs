@@ -150,5 +150,6 @@ export const faceToSvgString = (face: FaceConfig, overrides?: Overrides): string
   } finally {
     document.createElementNS = originalCreateElementNS;
   }
+  console.log('Done with faceToSvgString', { face, overrides })
   return svgDocument.toXml();
 };

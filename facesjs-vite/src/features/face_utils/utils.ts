@@ -65,6 +65,33 @@ export const set_to_dict = (container: { [key: string]: any } | Map<any, any>, k
     return container;
 };
 
+export const flattenDict = (obj: any, parentKey = '', result = {}) => {
+    for (const [key, value] of Object.entries(obj)) {
+        const newKey = parentKey ? `${parentKey}.${key}` : key;
+
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+            flattenDict(value, newKey, result);
+        } else {
+            // @ts-ignore
+            result[newKey] = value;
+        }
+    }
+    return result;
+}
+
+export const objStringifyInOrder = (obj: any): string => {
+    let flattenedObj = flattenDict(obj);
+
+    let returnString = '';
+
+    Object.keys(flattenedObj).sort().forEach((key) => {
+        // @ts-ignore
+        returnString += `${key}: ${flattenedObj[key]}\n`;
+    });
+
+    return returnString;
+};
+
 export const generateRangeFromStep = (start: number, end: number, step: number): number[] => {
     let returnArray = [];
 

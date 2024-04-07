@@ -44,7 +44,6 @@ const replaceSVGPlaceholders = (svgString: string, replacements: { [key: string]
   Object.keys(replacements).forEach(key => {
     const placeholder = `\\$\\[${key}\\]`; // Escaping $, [, and ]
     processedSVG = processedSVG.replace(new RegExp(placeholder, 'g'), replacements[key] || '');
-    console.log('replaceSVGPlaceholders', { key, replacements, placeholder, processedSVG, svgString, val: replacements[key] })
   });
   return processedSVG;
 }
@@ -174,7 +173,6 @@ const translate = (
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
 
 const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo): string | null => {
-  console.log('drawConfiglessFeature', { svg, face, info })
 
   let svgsToCombine: (string | null | undefined)[] = info.featuresToCombine!.map((featureName: Feature) => {
     // @ts-ignore
@@ -189,8 +187,6 @@ const drawConfiglessFeature = (svg: SVGSVGElement, face: FaceConfig, info: Featu
   let svgsStrToCombine: string[] = svgsToCombine.filter((svg: (string | null | undefined)) => svg) as string[];
 
   let combinedSVG: string | null = combineSVGElements(svgsStrToCombine)
-
-  console.log('drawConfiglessFeature', { svgsToCombine, combinedSVG })
 
   if (!combinedSVG) {
     return null;
@@ -257,7 +253,6 @@ const drawFeature = (svg: SVGSVGElement, face: FaceConfig, info: FeatureInfo) =>
   let featureSVGString: string | null;
   if (ConfiglessFeatures.includes(info.name)) {
     featureSVGString = drawConfiglessFeature(svg, face, info);
-    console.log('isConfiglessFeature', { featureSVGString, ConfiglessFeatures, face, info, svg })
   }
   else {
     // @ts-ignore
