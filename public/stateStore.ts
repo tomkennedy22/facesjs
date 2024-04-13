@@ -168,7 +168,16 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
     text: "Facial Hair Style",
     hasSvgs: true,
   },
-
+  {
+    key: "head.shaveOpacity",
+    text: "Shave Opacity",
+    renderOptions: {
+      rangeConfig: {
+        min: 0,
+        max: 0.75,
+      },
+    },
+  },
   {
     key: "eyebrow.id",
     text: "Eyebrow Style",

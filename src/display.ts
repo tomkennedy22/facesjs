@@ -1,145 +1,96 @@
+import {
+  hexToHsl,
+  hexToRgb,
+  hslToRgb,
+  rgbToHex,
+  rgbToHsl,
+} from "../public/utils";
 import override from "./override";
 import svgs from "./svgs";
-import { FaceConfig, FeatureInfo, Overrides } from "./types";
+import { FaceConfig, FeatureInfo, HSL, Overrides, RGB } from "./types";
 // @ts-ignore
 import paper from "paper-jsdom";
 
-const ConfiglessFeatures = ["faceStroke"];
-function combineSVGStrings(elementArr: string[]): string | null {
-  paper.setup(new paper.Size(400, 600));
+const getOuterStroke = (svgElement: SVGElement): paper.Path => {
+  // Initialize Paper.js project
+  paper.setup(document.createElement("canvas"));
 
-  if (elementArr.length === 0) {
-    return null;
-  }
+  // Import the SVGElement into Paper.js
+  const importedItem = paper.project.importSVG(svgElement);
 
-  // Assuming createPaperPathFromSVG returns a paper.Item,
-  // we filter out any non-path items for safety.
-  let pathItems: (paper.Path | paper.CompoundPath)[] = elementArr
-    .map(createPaperPathFromSVG)
-    .filter(
-      (item): item is paper.Path | paper.CompoundPath =>
-        item instanceof paper.Path || item instanceof paper.CompoundPath,
-    );
-  if (pathItems.length === 0) {
-    return null; // Return an empty string if there are no valid path items.
-  }
+  // Recursively find all path items in the imported item and its children
+  function findPathItems(item: paper.Item): paper.PathItem[] {
+    let paths: paper.PathItem[] = [];
 
-  // @ts-ignore
-  let combinedPath: paper.Path | paper.CompoundPath = pathItems[0];
-  for (let i = 1; i < pathItems.length; i++) {
-    // @ts-ignore
-    combinedPath = combinedPath.unite(pathItems[i]);
-  }
-
-  // const svgElement = combinedPath.exportSVG(); // Get SVG DOM element
-  const svgString = combinedPath.pathData; // Get SVG string
-
-  return `<path fill="none" stroke-width="6" stroke="black" d="${svgString}"></path>` as string;
-}
-
-const combineSVGElements = (
-  parentElement: SVGSVGElement,
-): SVGGraphicsElement | null => {
-  // @ts-ignore
-  console.log("Starting combineSVGElements", {
-    parentElement,
-    xml: parentElement.toXml(),
-  });
-  paper.setup(new paper.Size(400, 600));
-  // @ts-ignore
-  paper.project.importSVG(
-    parentElement.toXml(),
-    // , {
-    //   onLoad: function (item: any) {
-    //     console.log('combineSVGElements onLoad', { item })
-    //     // Assuming `item` contains the imported SVG with its structure
-    //     let unifiedPath = new paper.Path();
-
-    //     // Iterate over all children if the imported SVG is a group
-    //     item.children.forEach((child: any) => {
-    //       // This example assumes all children are paths or compound paths.
-    //       // In practice, you might need a recursive function to handle nested groups.
-    //       unifiedPath = unifiedPath.unite(child.toPath());
-    //     });
-
-    //     console.log('combineSVGElements unifiedPath', { unifiedPath, item })
-
-    //     // Apply a stroke to the unified path
-    //     unifiedPath.strokeColor = 'black';
-    //     unifiedPath.strokeWidth = 2;
-
-    //     // If you need to perform operations with the unified path or export it
-    //     console.log(unifiedPath.exportSVG({ asString: true }));
-
-    //     // Remove original item to leave only the unified stroke path
-    //     item.remove();
-    //   }
-    // });
-  );
-
-  console.log("combineSVGElements", {
-    parentElement,
-    paper,
-    project: paper.project,
-  });
-
-  return null;
-};
-
-const replacements: { [key: string]: string } = {
-  skinColor: "#ffffff", // Example skin color
-  hairColor: "#000000", // Example hair color
-  shaveOpacity: "0.5", // Example opacity
-};
-
-const replaceSVGPlaceholders = (
-  svgString: string,
-  replacements: { [key: string]: string },
-) => {
-  let processedSVG = svgString;
-  Object.keys(replacements).forEach((key) => {
-    const placeholder = `\\$\\[${key}\\]`; // Escaping $, [, and ]
-    processedSVG = processedSVG.replace(
-      new RegExp(placeholder, "g"),
-      replacements[key] || "",
-    );
-  });
-  return processedSVG;
-};
-
-const createPaperPathFromSVG = (
-  svgString: string,
-): paper.Path | paper.CompoundPath => {
-  const replacedSVG = replaceSVGPlaceholders(svgString, replacements);
-
-  // Initialize Paper.js
-  paper.setup(document.createElement("canvas")); // Setup with a new canvas element
-
-  // Use a regex to extract path data. This is a simple extraction method.
-  const pathRegex = /<path[^>]+d="([^"]+)"[^>]*>/g;
-  let match: RegExpExecArray | null;
-  let paths: paper.Path[] = [];
-
-  while ((match = pathRegex.exec(replacedSVG)) !== null) {
-    if (match[1] !== undefined) {
-      const pathData = match[1];
-      paths.push(new paper.Path(pathData));
+    if (item instanceof paper.PathItem) {
+      paths.push(item);
     }
+
+    if (item.children) {
+      item.children.forEach((child: any) => {
+        paths = paths.concat(findPathItems(child));
+      });
+    }
+
+    return paths;
   }
 
-  // If only one path, return it directly; otherwise, create and return a CompoundPath
-  // @ts-ignore
-  if (
-    paths.length === 1 &&
-    paths[0] &&
-    (paths[0] instanceof paper.Path || paths[0] instanceof paper.CompoundPath)
-  ) {
-    return paths[0];
+  const pathItems = findPathItems(importedItem);
+
+  // Unite all the path items into a single path
+  const unitedPath = pathItems.reduce(
+    (result, path) => {
+      if (result) {
+        result = result.unite(path);
+      } else {
+        result = path;
+      }
+      return result;
+    },
+    null as paper.PathItem | null,
+  ) as paper.Path;
+
+  unitedPath.strokeColor = new paper.Color("black");
+  unitedPath.strokeWidth = 4;
+  unitedPath.fillColor = new paper.Color("transparent");
+
+  // Remove the imported item and its children from the project
+  importedItem.remove();
+
+  return unitedPath;
+};
+
+const adjustShade = (color: string, amount: number): string => {
+  // Convert hex to RGB
+  const rgb: RGB | null = hexToRgb(color);
+
+  // Convert RGB to HSL
+  if (!rgb) {
+    return color;
+  }
+  const hsl: HSL = rgbToHsl(rgb);
+
+  // Adjust the lightness
+  const adjustedLightness = Math.max(0, Math.min(1, hsl.l * amount));
+
+  // Convert HSL back to RGB
+  const adjustedRgb = hslToRgb({ ...hsl, l: adjustedLightness });
+
+  // Convert RGB back to hex
+  const adjustedHex = rgbToHex(adjustedRgb);
+
+  return adjustedHex;
+};
+
+const getHairAccent = (hairColor: string): string => {
+  let hsl = hexToHsl(hairColor);
+  if (!hsl) {
+    return hairColor;
+  }
+  if (hsl.l < 0.33) {
+    return adjustShade(hairColor, 1.5);
   } else {
-    // For multiple paths, construct a CompoundPath
-    return new paper.CompoundPath({
-      children: paths,
-    });
+    return adjustShade(hairColor, 0.5);
   }
 };
 
@@ -185,7 +136,6 @@ const scaleStrokeWidthAndChildren = (
 // Scale relative to the center of bounding box of element e, like in Raphael.
 // Set x and y to 1 and this does nothing. Higher = bigger, lower = smaller.
 const scaleCentered = (element: SVGGraphicsElement, x: number, y: number) => {
-  console.log("scaleCentered", { element, x, y });
   const bbox = element.getBBox();
   const cx = bbox.x + bbox.width / 2;
   const cy = bbox.y + bbox.height / 2;
@@ -215,15 +165,6 @@ const scaleTopDown = (element: SVGGraphicsElement, x: number, y: number) => {
 
   // Apply the transformation with the origin set to the bottom of the element
   addTransform(element, `scale(${x} ${y}) translate(${tx} ${ty})`);
-  console.log("scaleTopDown", {
-    trans: `scale(${x} ${y}) translate(${tx} ${ty})`,
-    x,
-    y,
-    tx,
-    ty,
-    bbox,
-    element,
-  });
 
   // Stroke width adjustment, if necessary
   if (
@@ -262,18 +203,6 @@ const translate = (
     cy = bbox.y + bbox.height / 2;
   }
 
-  if (yAlign === "bottom") {
-    console.log("translate", {
-      trans: `translate(${x - cx} ${y - cy})`,
-      x,
-      y,
-      xAlign,
-      yAlign,
-      cx,
-      cy,
-      element,
-    });
-  }
   addTransform(element, `translate(${x - cx} ${y - cy})`);
 };
 
@@ -382,6 +311,14 @@ const drawFeature = (
     face.teamColors[2],
   );
 
+  if (featureSVGString.includes("$[hairAccent]")) {
+    let hairAccent = getHairAccent(face.hair.color as string) || "#000";
+    featureSVGString = featureSVGString.replace(
+      /\$\[hairAccent\]/g,
+      hairAccent,
+    );
+  }
+
   featureSVGString = featureSVGString.replace(
     /\$\[shaveOpacity\]/g,
     // @ts-ignore
@@ -405,13 +342,6 @@ const drawFeature = (
   for (let i = 0; i < info.positions.length; i++) {
     svg.insertAdjacentHTML(insertPosition, addWrapper(featureSVGString));
     let childElement = calcChildElement() as SVGSVGElement;
-
-    console.log("Testing", {
-      svg,
-      childElement,
-      insertPosition,
-      featureSVGString,
-    });
 
     const position = info.positions[i];
 
@@ -496,12 +426,6 @@ const drawFeature = (
       childElement as SVGGraphicsElement,
       `translate(0, ${-1 * face.eyeHeight})`,
     );
-    console.log("shiftWithEyes", {
-      eyeHeight: face.eyeHeight,
-      childElement,
-      face,
-      info,
-    });
   }
 };
 
@@ -634,6 +558,14 @@ export const display = (
 
   for (const info of featureInfos) {
     drawFeature(insideSVG, face, info);
+
+    if (info.name == "hair") {
+      let outerStroke = getOuterStroke(insideSVG);
+      insideSVG.insertAdjacentHTML(
+        "beforeend",
+        outerStroke.exportSVG({ asString: true }),
+      );
+    }
   }
 
   if (face.height !== undefined) {
