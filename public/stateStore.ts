@@ -54,6 +54,16 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
     },
   },
   {
+    key: "height",
+    text: "Face Height",
+    renderOptions: {
+      rangeConfig: {
+        min: 0,
+        max: 1,
+      },
+    },
+  },
+  {
     key: "mouth.id",
     text: "Mouth Shape",
     hasSvgs: true,
@@ -272,8 +282,8 @@ for (const gallerySectionConfig of gallerySectionConfigList) {
 
     if (!rangeConfig.step || !rangeConfig.sliderStep) {
       let range = rangeConfig.max - rangeConfig.min;
-      rangeConfig.step = roundTwoDecimals(range / 5);
-      rangeConfig.sliderStep = Math.max(roundTwoDecimals(range / 35), 0.01);
+      rangeConfig.step = roundTwoDecimals(range / 10);
+      rangeConfig.sliderStep = Math.max(roundTwoDecimals(range / 50), 0.01);
     }
 
     gallerySectionConfig.renderOptions.valuesToRender = generateRangeFromStep(

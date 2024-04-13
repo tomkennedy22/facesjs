@@ -35,6 +35,9 @@ export type FeatureInfo = {
   scaleFatness?: boolean;
   shiftWithEyes?: boolean;
   opaqueLines?: boolean;
+  placeBeginning?: boolean;
+  flip?: boolean;
+  size?: number;
 };
 
 // export type FaceConfigSections = Exclude<keyof FaceConfig, FaceConfigGlobalAttrs>;

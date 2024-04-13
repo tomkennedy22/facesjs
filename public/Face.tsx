@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { FaceConfig, Overrides } from "../src/types";
 import { useInView } from "react-intersection-observer";
 import { display } from "../src/display";
+import { concatClassNames } from "./utils";
 
 /*
     This component is responsible for rendering the face SVG string
@@ -57,7 +58,7 @@ export const Face = React.forwardRef<
   return (
     <div
       ref={mergeRefs(ref, scrollRef)}
-      className={className}
+      className={concatClassNames(className || "", "overflow-hidden")} //
       style={{ ...widthStyle, ...heightStyle, aspectRatio: "2/3" }}
     ></div>
   );
