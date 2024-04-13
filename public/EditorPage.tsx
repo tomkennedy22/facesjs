@@ -638,6 +638,13 @@ const EditorPageGallery = () => {
                           gallerySectionConfig.selectedValue ==
                           overrideToRun.display;
 
+                        let faceWidth = 50;
+                        if (gallerySize == "md") {
+                          faceWidth = 100;
+                        } else if (gallerySize == "lg") {
+                          faceWidth = 150;
+                        }
+
                         return (
                           <div
                             key={faceIndex}
@@ -655,13 +662,7 @@ const EditorPageGallery = () => {
                             <Face
                               ref={overrideToRun.ref}
                               faceConfig={faceConfigCopy}
-                              width={
-                                gallerySize == "md"
-                                  ? 100
-                                  : gallerySize == "sm"
-                                    ? 50
-                                    : 150
-                              }
+                              width={faceWidth}
                               lazyLoad={true}
                             />
                           </div>

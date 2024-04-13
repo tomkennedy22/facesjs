@@ -53,7 +53,6 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
       },
     },
   },
-
   {
     key: "mouth.id",
     text: "Mouth Shape",
@@ -76,7 +75,6 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
       isBoolean: true,
     },
   },
-
   {
     key: "eye.id",
     text: "Eye Shape",
@@ -89,6 +87,26 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
       rangeConfig: {
         min: -10,
         max: 15,
+      },
+    },
+  },
+  {
+    key: "eyeDistance",
+    text: "Eye Distance",
+    renderOptions: {
+      rangeConfig: {
+        min: -5,
+        max: 5,
+      },
+    },
+  },
+  {
+    key: "eyeHeight",
+    text: "Eye Height",
+    renderOptions: {
+      rangeConfig: {
+        min: -7.5,
+        max: 7.5,
       },
     },
   },
@@ -197,6 +215,16 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
       rangeConfig: {
         min: 0.25,
         max: 2.25,
+      },
+    },
+  },
+  {
+    key: "lineOpacity",
+    text: "Line Opacity",
+    renderOptions: {
+      rangeConfig: {
+        min: 0,
+        max: 1,
       },
     },
   },

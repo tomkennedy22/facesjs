@@ -97,6 +97,8 @@ export const genders = {
     female7: "female",
     female8: "female",
     female9: "female",
+    "eyebrow-long": "both",
+    "eyebrow-notch": "both",
   },
   facialHair: {
     "beard-point": "male",
@@ -296,6 +298,8 @@ export const genders = {
     jersey3: "both",
     jersey4: "both",
     jersey5: "both",
+    suit: "male",
+    suit2: "male",
   },
   miscLine: {
     blush: "female",
@@ -353,6 +357,13 @@ export const genders = {
     line2: "both",
     line3: "both",
     line4: "both",
+    none: "both",
+  },
+  earring: {
+    "earring-stud": "both",
+    "earring-hanging-diamond": "female",
+    "earring-silver-diamond": "female",
+    "earring-silver": "female",
     none: "both",
   },
 };

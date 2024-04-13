@@ -149,6 +149,17 @@ const drawFeature = (
     }
   }
 
+  if (
+    ["suit", "suit2"].includes(face.jersey.id) &&
+    (info.name == "accessories" ||
+      info.name == "glasses" ||
+      info.name == "earring")
+  ) {
+    //Don't show headband, facemask, etc if person is wearing a suit
+    //might be a smarter way to do that includes statement, but wanted to throw in all non-jersey clothing. Only those 2 right now
+    return;
+  }
+
   // @ts-ignore
   let featureSVGString = svgs[info.name][feature.id];
   if (!featureSVGString) {
@@ -185,6 +196,12 @@ const drawFeature = (
     face.teamColors[2],
   );
 
+  featureSVGString = featureSVGString.replace(
+    /\$\[shaveOpacity\]/g,
+    // @ts-ignore
+    feature.shaveOpacity || 0,
+  );
+
   const bodySize = face.body.size !== undefined ? face.body.size : 1;
 
   for (let i = 0; i < info.positions.length; i++) {
@@ -200,6 +217,20 @@ const drawFeature = (
         xAlign = feature.flip ? "right" : "left";
       } else {
         xAlign = "center";
+      }
+
+      // @ts-ignore
+      if (feature.distance) {
+        let move_direction = i == 1 ? 1 : -1;
+        // @ts-ignore
+        position[0] += move_direction * feature.distance;
+      }
+
+      let shiftDirection = i == 1 ? 1 : -1;
+      if (info.shiftWithEyes) {
+        // @ts-ignore
+        position[0] += shiftDirection * face.eyeDistance;
+        position[1] += -1 * face.eyeHeight;
       }
 
       translate(
@@ -230,6 +261,11 @@ const drawFeature = (
       scaleCentered(svg.lastChild, scale, scale);
     }
 
+    if (info.opaqueLines) {
+      // @ts-ignore
+      svg.lastChild.setAttribute("stroke-opacity", String(face.lineOpacity));
+    }
+
     if (info.scaleFatness && info.positions[0] !== null) {
       // Scale individual feature relative to the edge of the head. If fatness is 1, then there are 47 pixels on each side. If fatness is 0, then there are 78 pixels on each side.
       const distance = (78 - 47) * (1 - face.fatness);
@@ -243,8 +279,10 @@ const drawFeature = (
     info.positions.length === 1 &&
     info.positions[0] === null
   ) {
+    // TODO - scale Height as well, make it move down
     // @ts-ignore
     scaleCentered(svg.lastChild, fatScale(face.fatness), 1);
+    // scaleCentered(svg.lastChild, fatScale(face.fatness), fatScale(face.height));
   }
 };
 
@@ -305,6 +343,8 @@ export const display = (
     {
       name: "eyeLine",
       positions: [null],
+      opaqueLines: true,
+      shiftWithEyes: true,
     },
     {
       name: "smileLine",
@@ -312,10 +352,16 @@ export const display = (
         [150, 435],
         [250, 435],
       ],
+      opaqueLines: true,
     },
     {
       name: "miscLine",
       positions: [null],
+      opaqueLines: true,
+    },
+    {
+      name: "mouth",
+      positions: [[200, 440]],
     },
     {
       name: "facialHair",
@@ -328,6 +374,7 @@ export const display = (
         [140, 310],
         [260, 310],
       ],
+      shiftWithEyes: true,
     },
     {
       name: "eyebrow",
@@ -335,10 +382,7 @@ export const display = (
         [140, 270],
         [260, 270],
       ],
-    },
-    {
-      name: "mouth",
-      positions: [[200, 440]],
+      shiftWithEyes: true,
     },
     {
       name: "nose",

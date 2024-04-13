@@ -1,5 +1,5 @@
 import { pickRandom } from "../public/utils";
-import { colors } from "./globals";
+import { colors, jerseyColorOptions } from "./globals";
 import override from "./override";
 import { svgsGenders, svgsIndex } from "./svgs-index";
 import {
@@ -33,7 +33,6 @@ const getID = (type: Feature, gender: Gender): string => {
 };
 
 const roundTwoDecimals = (x: number) => Math.round(x * 100) / 100;
-const defaultTeamColors: TeamColors = ["#89bfd3", "#7a1319", "#07364f"];
 
 export const generate = (
   overrides?: Overrides,
@@ -49,7 +48,7 @@ export const generate = (
 
   const gender = options && options.gender ? options.gender : "male";
   // let teamColors: TeamColors = pickRandom(jerseyColorOptions);
-  let teamColors: TeamColors = defaultTeamColors;
+  let teamColors: TeamColors = pickRandom(jerseyColorOptions);
 
   const eyeAngle = randomInt(-10, 15, true);
 
@@ -69,11 +68,16 @@ export const generate = (
   })();
   const skinColor = pickRandom(palette.skin);
   const hairColor = pickRandom(palette.hair);
+  const eyeColor = pickRandom(palette.eyes);
   const isFlipped = () => Math.random() < 0.5;
 
   const face: FaceConfig = {
     fatness: roundTwoDecimals((gender === "female" ? 0.4 : 1) * Math.random()),
+    height: roundTwoDecimals(Math.random()),
     teamColors: teamColors,
+    lineOpacity: roundTwoDecimals((0.25 + 0.5 * Math.random()) ** 2),
+    eyeDistance: 10 * Math.random() - 5,
+    eyeHeight: 15 * Math.random() - 7.5,
     hairBg: {
       id:
         Math.random() < (gender === "male" ? 0.1 : 0.9)
@@ -94,13 +98,18 @@ export const generate = (
         0.5 + (gender === "female" ? 0.5 : 1) * Math.random(),
       ),
     },
+    earring: {
+      id:
+        (gender === "female" ? 1 : 0.5) * Math.random() > 0.25
+          ? getID("earring", gender)
+          : "none",
+    },
     head: {
       id: getID("head", gender),
-      shave: `rgba(0,0,0,${
-        gender === "male" && Math.random() < 0.25
+      shaveOpacity:
+        gender === "male" && Math.random() < 0.35
           ? roundTwoDecimals(Math.random() / 5)
-          : 0
-      })`,
+          : 0,
     },
     eyeLine: {
       id: Math.random() < 0.75 ? getID("eyeLine", gender) : "none",
@@ -121,6 +130,7 @@ export const generate = (
     eye: {
       id: getID("eye", gender),
       angle: eyeAngle,
+      color: eyeColor,
     },
     eyebrow: {
       id: getID("eyebrow", gender),
@@ -134,6 +144,7 @@ export const generate = (
     mouth: {
       id: getID("mouth", gender),
       flip: isFlipped(),
+      size: roundTwoDecimals(0.6 + Math.random() * 0.6),
     },
     nose: {
       id: getID("nose", gender),

@@ -23,7 +23,8 @@ export type Feature =
   | "miscLine"
   | "mouth"
   | "nose"
-  | "smileLine";
+  | "smileLine"
+  | "earring";
 
 export type Race = "asian" | "black" | "brown" | "white";
 
@@ -41,7 +42,11 @@ export type FaceConfigGlobalAttrs = "fatness" | "teamColors";
 
 export type FaceConfig = {
   fatness: number;
+  height: number;
   teamColors: TeamColors;
+  lineOpacity: number;
+  eyeDistance: number;
+  eyeHeight: number;
   hairBg: {
     id: string;
   };
@@ -59,7 +64,7 @@ export type FaceConfig = {
   };
   head: {
     id: string;
-    shave: string;
+    shaveOpacity: number;
   };
   eyeLine: {
     id: string;
@@ -77,6 +82,7 @@ export type FaceConfig = {
   eye: {
     id: string;
     angle: number;
+    color: string;
   };
   eyebrow: {
     id: string;
@@ -90,6 +96,7 @@ export type FaceConfig = {
   mouth: {
     id: string;
     flip: boolean;
+    size: number;
   };
   nose: {
     id: string;
@@ -100,6 +107,9 @@ export type FaceConfig = {
     id: string;
   };
   accessories: {
+    id: string;
+  };
+  earring: {
     id: string;
   };
 };

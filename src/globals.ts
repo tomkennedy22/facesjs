@@ -1,7 +1,9 @@
 import { Race, TeamColors } from "./types";
 import { distinct } from "../public/utils";
 
-export const colors: { [key in Race]: { skin: string[]; hair: string[] } } = {
+export const colors: {
+  [key in Race]: { skin: string[]; hair: string[]; eyes: string[] };
+} = {
   white: {
     skin: ["#f2d6cb", "#ddb7a0"],
     hair: [
@@ -14,17 +16,35 @@ export const colors: { [key in Race]: { skin: string[]; hair: string[] } } = {
       "#e9c67b",
       "#D7BF91",
     ],
+    eyes: [
+      "#739ac5",
+      "#56738f",
+      "#728c62",
+      "#5d4037",
+      "#6d4c41",
+      "#9c7f64",
+      "#6e511e",
+      "#3a282a",
+      "#312923",
+      "#2c2a29",
+    ],
   },
   asian: {
     // https://imgur.com/a/GrBuWYw
     skin: ["#fedac7", "#f0c5a3", "#eab687"],
     hair: ["#272421", "#0f0902"],
+    eyes: ["#3a282a", "#312923", "#2c2a29", "#6d4c41", "#795548"],
   },
   brown: {
     skin: ["#bb876f", "#aa816f", "#a67358"],
     hair: ["#272421", "#1c1008"],
+    eyes: ["#3a282a", "#312923", "#2c2a29"],
   },
-  black: { skin: ["#ad6453", "#74453d", "#5c3937"], hair: ["#272421"] },
+  black: {
+    skin: ["#ad6453", "#74453d", "#5c3937"],
+    hair: ["#272421"],
+    eyes: ["#3a282a", "#312923", "#2c2a29"],
+  },
 };
 
 export const jerseyColorOptions: TeamColors[] = [
