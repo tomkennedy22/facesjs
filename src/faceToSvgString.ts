@@ -133,16 +133,15 @@ export const faceToSvgString = (
   overrides?: Overrides,
 ): string => {
   const svgDocument = new SvgDocument();
-  // Even though we will provide a pseudo HTML elment, display() accesses
-  // document.createElementNS() so we need to inject our own code there.
-  // Let's first save what's already there
-  const backup = global.document;
+  const originalCreateElementNS = document.createElementNS.bind(document);
 
   try {
-    global.document = svgDocument as any;
+    document.createElementNS = (namespaceURI: string, qualifiedName: string) =>
+      svgDocument.createElementNS(namespaceURI, qualifiedName) as any;
+
     display(svgDocument as unknown as HTMLElement, face, overrides);
   } finally {
-    global.document = backup;
+    document.createElementNS = originalCreateElementNS;
   }
   return svgDocument.toXml();
 };

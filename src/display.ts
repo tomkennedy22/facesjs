@@ -8,57 +8,6 @@ import {
 import override from "./override";
 import svgs from "./svgs";
 import { FaceConfig, FeatureInfo, HSL, Overrides, RGB } from "./types";
-// @ts-ignore
-import paper from "paper-jsdom";
-
-const getOuterStroke = (svgElement: SVGElement): paper.Path => {
-  // Initialize Paper.js project
-  paper.setup(document.createElement("canvas"));
-
-  // Import the SVGElement into Paper.js
-  const importedItem = paper.project.importSVG(svgElement);
-
-  // Recursively find all path items in the imported item and its children
-  function findPathItems(item: paper.Item): paper.PathItem[] {
-    let paths: paper.PathItem[] = [];
-
-    if (item instanceof paper.PathItem) {
-      paths.push(item);
-    }
-
-    if (item.children) {
-      item.children.forEach((child: any) => {
-        paths = paths.concat(findPathItems(child));
-      });
-    }
-
-    return paths;
-  }
-
-  const pathItems = findPathItems(importedItem);
-
-  // Unite all the path items into a single path
-  const unitedPath = pathItems.reduce(
-    (result, path) => {
-      if (result) {
-        result = result.unite(path);
-      } else {
-        result = path;
-      }
-      return result;
-    },
-    null as paper.PathItem | null,
-  ) as paper.Path;
-
-  unitedPath.strokeColor = new paper.Color("black");
-  unitedPath.strokeWidth = 4;
-  unitedPath.fillColor = new paper.Color("transparent");
-
-  // Remove the imported item and its children from the project
-  importedItem.remove();
-
-  return unitedPath;
-};
 
 const adjustShade = (color: string, amount: number): string => {
   // Convert hex to RGB
@@ -88,7 +37,7 @@ const getHairAccent = (hairColor: string): string => {
     return hairColor;
   }
   if (hsl.l < 0.33) {
-    return adjustShade(hairColor, 1.5);
+    return adjustShade(hairColor, 2);
   } else {
     return adjustShade(hairColor, 0.5);
   }
@@ -155,9 +104,12 @@ const scaleCentered = (element: SVGGraphicsElement, x: number, y: number) => {
   }
 };
 
+// @ts-ignore
 const scaleTopDown = (element: SVGGraphicsElement, x: number, y: number) => {
   const bbox = element.getBBox();
   const cx = bbox.x + bbox.width / 2;
+
+  const initialCy = bbox.y + bbox.height;
 
   // Compute translations; tx remains the same to keep the horizontal centering
   const tx = (cx * (1 - x)) / x;
@@ -165,6 +117,10 @@ const scaleTopDown = (element: SVGGraphicsElement, x: number, y: number) => {
 
   // Apply the transformation with the origin set to the bottom of the element
   addTransform(element, `scale(${x} ${y}) translate(${tx} ${ty})`);
+
+  let newBBox = element.getBBox();
+  let newCy = newBBox.y + newBBox.height;
+  console.log("scaleTopDown", { initialCy, newCy, ty, bbox, newBBox, element });
 
   // Stroke width adjustment, if necessary
   if (
@@ -208,6 +164,7 @@ const translate = (
 
 // Defines the range of fat/skinny, relative to the original width of the default head.
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
+// @ts-ignore
 const heightScale = (height: number) => 0.85 + 0.3 * height;
 
 const drawFeature = (
@@ -297,6 +254,10 @@ const drawFeature = (
   featureSVGString = featureSVGString.replace(
     /\$\[hairColor\]/g,
     face.hair.color,
+  );
+  featureSVGString = featureSVGString.replace(
+    /\$\[eyeColor\]/g,
+    face.eye.color,
   );
   featureSVGString = featureSVGString.replace(
     /\$\[primary\]/g,
@@ -489,11 +450,6 @@ export const display = (
       positions: [[200, 440]],
     },
     {
-      name: "facialHair",
-      positions: [null],
-      scaleFatness: true,
-    },
-    {
       name: "eye",
       positions: [
         [140, 310],
@@ -512,6 +468,11 @@ export const display = (
     {
       name: "nose",
       positions: [[200, 370]],
+    },
+    {
+      name: "facialHair",
+      positions: [null],
+      scaleFatness: true,
     },
     {
       name: "hair",
@@ -539,12 +500,6 @@ export const display = (
       placeBeginning: true,
     },
     {
-      name: "hairBg",
-      positions: [null],
-      scaleFatness: true,
-      placeBeginning: true,
-    },
-    {
       name: "jersey",
       positions: [null],
       placeBeginning: true,
@@ -554,22 +509,15 @@ export const display = (
       positions: [null],
       placeBeginning: true,
     },
+    {
+      name: "hairBg",
+      positions: [null],
+      scaleFatness: true,
+      placeBeginning: true,
+    },
   ];
 
   for (const info of featureInfos) {
     drawFeature(insideSVG, face, info);
-
-    if (info.name == "hair") {
-      let outerStroke = getOuterStroke(insideSVG);
-      insideSVG.insertAdjacentHTML(
-        "beforeend",
-        outerStroke.exportSVG({ asString: true }),
-      );
-    }
-  }
-
-  if (face.height !== undefined) {
-    // @ts-ignore
-    scaleTopDown(insideSVG, 1, heightScale(face.height));
   }
 };

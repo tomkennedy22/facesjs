@@ -38,12 +38,13 @@ export const generate = (
   overrides?: Overrides,
   options?: { gender?: Gender; race?: Race },
 ): FaceConfig => {
-  const playerRace: Race = (() => {
+  let playerRace: Race = (() => {
     if (options && options.race) {
       return options.race;
     }
 
     return pickRandom(["white", "asian", "brown", "black"]);
+    // return pickRandom(["white"]);
   })();
 
   const gender = options && options.gender ? options.gender : "male";
