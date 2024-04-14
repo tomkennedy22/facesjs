@@ -520,4 +520,8 @@ export const display = (
   for (const info of featureInfos) {
     drawFeature(insideSVG, face, info);
   }
+
+  if (face.height) {
+    scaleTopDown(insideSVG, 1, heightScale(face.height));
+  }
 };
