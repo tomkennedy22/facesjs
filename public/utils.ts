@@ -394,3 +394,17 @@ export const hexToHsl = (hex: HEX): HSL | null => {
   }
   return rgbToHsl(rgb);
 };
+
+export const randomGaussian = (min: number, max: number) => {
+  let u = 0,
+    v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+
+  num = num / 10.0 + 0.5;
+  if (num > 1 || num < 0) num = randomGaussian(min, max);
+  num *= max - min;
+  num += min;
+  return num;
+};

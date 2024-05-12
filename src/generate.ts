@@ -1,4 +1,4 @@
-import { pickRandom } from "../public/utils";
+import { pickRandom, randomGaussian } from "../public/utils";
 import { colors, jerseyColorOptions } from "./globals";
 import override from "./override";
 import { svgsGenders, svgsIndex } from "./svgs-index";
@@ -77,8 +77,6 @@ export const generate = (
     height: roundTwoDecimals(Math.random()),
     teamColors: teamColors,
     lineOpacity: roundTwoDecimals((0.25 + 0.5 * Math.random()) ** 2),
-    eyeDistance: 10 * Math.random() - 5,
-    eyeHeight: 15 * Math.random() - 7.5,
     hairBg: {
       id:
         Math.random() < (gender === "male" ? 0.1 : 0.9)
@@ -132,6 +130,9 @@ export const generate = (
       id: getID("eye", gender),
       angle: eyeAngle,
       color: eyeColor,
+      size: roundTwoDecimals(0.85 + Math.random() * 0.3),
+      distance: roundTwoDecimals(8 * Math.random() - 6),
+      height: roundTwoDecimals(20 * Math.random() - 10),
     },
     eyebrow: {
       id: getID("eyebrow", gender),
@@ -153,6 +154,7 @@ export const generate = (
       size: roundTwoDecimals(
         0.5 + Math.random() * (gender === "female" ? 0.5 : 0.75),
       ),
+      angle: randomGaussian(-3, 3),
     },
     glasses: {
       id: Math.random() < 0.1 ? getID("glasses", gender) : "none",

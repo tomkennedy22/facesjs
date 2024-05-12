@@ -101,22 +101,32 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
     },
   },
   {
-    key: "eyeDistance",
+    key: "eye.distance",
     text: "Eye Distance",
     renderOptions: {
       rangeConfig: {
-        min: -5,
-        max: 5,
+        min: -6,
+        max: 2,
       },
     },
   },
   {
-    key: "eyeHeight",
+    key: "eye.size",
+    text: "Eye Size",
+    renderOptions: {
+      rangeConfig: {
+        min: 0.85,
+        max: 1.15,
+      },
+    },
+  },
+  {
+    key: "eye.height",
     text: "Eye Height",
     renderOptions: {
       rangeConfig: {
-        min: -7.5,
-        max: 7.5,
+        min: -10,
+        max: 10,
       },
     },
   },
@@ -206,6 +216,16 @@ let gallerySectionConfigList: GallerySectionConfig[] = [
       rangeConfig: {
         min: 0.5,
         max: 1.25,
+      },
+    },
+  },
+  {
+    key: "nose.angle",
+    text: "Nose Angle",
+    renderOptions: {
+      rangeConfig: {
+        min: -3,
+        max: 3,
       },
     },
   },

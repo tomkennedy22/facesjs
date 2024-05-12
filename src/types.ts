@@ -48,8 +48,6 @@ export type FaceConfig = {
   height: number;
   teamColors: TeamColors;
   lineOpacity: number;
-  eyeDistance: number;
-  eyeHeight: number;
   hairBg: {
     id: string;
   };
@@ -86,6 +84,9 @@ export type FaceConfig = {
     id: string;
     angle: number;
     color: string;
+    size: number;
+    distance: number;
+    height: number;
   };
   eyebrow: {
     id: string;
@@ -105,6 +106,7 @@ export type FaceConfig = {
     id: string;
     flip: boolean;
     size: number;
+    angle: number;
   };
   glasses: {
     id: string;

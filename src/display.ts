@@ -326,8 +326,8 @@ const drawFeature = (
       let shiftDirection = i == 1 ? 1 : -1;
       if (info.shiftWithEyes) {
         // @ts-ignore
-        position[0] += shiftDirection * face.eyeDistance;
-        position[1] += -1 * face.eyeHeight;
+        position[0] += shiftDirection * face.eye.distance;
+        position[1] += -1 * face.eye.height;
         // position[1] += 1 * 50 * (1 - fatScale(face.height));
       }
 
@@ -385,7 +385,7 @@ const drawFeature = (
     // @ts-ignore
     addTransform(
       childElement as SVGGraphicsElement,
-      `translate(0, ${-1 * face.eyeHeight})`,
+      `translate(0, ${-1 * face.eye.height})`,
     );
   }
 };
