@@ -276,6 +276,28 @@ const gallerySectionInfos: (Pick<
     selectionType: "svgs",
   },
   {
+    key: "eyeLine.opacity",
+    text: "Eye Line Opacity",
+    selectionType: "range",
+    renderOptions: {
+      rangeConfig: {
+        min: 0,
+        max: 1,
+      },
+    },
+  },
+  {
+    key: "eyeLine.strokeWidthModifier",
+    text: "Eye Line Thiccness",
+    selectionType: "range",
+    renderOptions: {
+      rangeConfig: {
+        min: 0,
+        max: 2,
+      },
+    },
+  },
+  {
     key: "smileLine.id",
     text: "Smile Line Style",
     selectionType: "svgs",

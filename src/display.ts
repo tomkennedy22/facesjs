@@ -133,6 +133,16 @@ const adjustShade = (color: string, amount: number): string => {
   return adjustedHex;
 };
 
+const getSkinAccent = (skinColor: string): string => {
+  let hsl = hexToHsl(skinColor);
+  if (!hsl) {
+    return skinColor;
+  }
+
+  hsl.l = Math.max(0, hsl.l * 0.85, hsl.l - 0.2);
+  return rgbToHex(hslToRgb(hsl));
+};
+
 const getHairAccent = (hairColor: string): string => {
   let hsl = hexToHsl(hairColor);
   if (!hsl) {
@@ -181,6 +191,21 @@ const scaleStrokeWidthAndChildren = (
   const children = element.childNodes as unknown as SVGGraphicsElement[];
   for (let i = 0; i < children.length; i++) {
     scaleStrokeWidthAndChildren(children[i], factor);
+  }
+};
+
+const setStrokeColorAndChildren = (
+  element: SVGGraphicsElement,
+  color: string,
+) => {
+  if (element.tagName === "style") {
+    return;
+  }
+
+  element.setAttribute("stroke", color);
+  const children = element.childNodes as unknown as SVGGraphicsElement[];
+  for (let i = 0; i < children.length; i++) {
+    setStrokeColorAndChildren(children[i], color);
   }
 };
 
@@ -459,6 +484,11 @@ const drawFeature = (
       );
     }
 
+    if (info.hasOwnProperty("strokeColor")) {
+      // @ts-ignore
+      setStrokeColorAndChildren(childElement, info.strokeColor);
+    }
+
     if (info.scaleFatness && info.positions[0] !== null) {
       // Scale individual feature relative to the edge of the head. If fatness is 1, then there are 47 pixels on each side. If fatness is 0, then there are 78 pixels on each side.
       const distance = (78 - 47) * (1 - face.fatness);
@@ -518,6 +548,8 @@ export const display = (
   // Needs to be in the DOM here so getBBox will work
   containerElement.appendChild(svg);
 
+  let faceLineStrokeColor = getSkinAccent(face.body.color);
+
   const featureInfos: FeatureInfo[] = [
     {
       name: "head",
@@ -529,6 +561,7 @@ export const display = (
       positions: [null],
       opaqueLines: true,
       shiftWithEyes: true,
+      strokeColor: faceLineStrokeColor,
     },
     {
       name: "smileLine",
@@ -537,11 +570,13 @@ export const display = (
         [250, 435],
       ],
       opaqueLines: true,
+      strokeColor: faceLineStrokeColor,
     },
     {
       name: "miscLine",
       positions: [null],
       opaqueLines: true,
+      strokeColor: faceLineStrokeColor,
     },
     {
       name: "mouth",

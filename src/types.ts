@@ -40,6 +40,7 @@ export type FeatureInfo = {
   flip?: boolean;
   size?: number;
   strokeWidthModifier?: number;
+  strokeColor?: string;
 };
 
 export type FaceConfig = ReturnType<typeof generate>;
