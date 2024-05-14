@@ -206,33 +206,21 @@ const scaleCentered = (element: SVGGraphicsElement, x: number, y: number) => {
   }
 };
 
-// @ts-ignore
-const scaleTopDown = (element: SVGGraphicsElement, x: number, y: number) => {
+const scaleTopDown = (element: SVGGraphicsElement, scaleY: number) => {
   const bbox = element.getBBox();
-  const cx = bbox.x + bbox.width / 2;
 
-  const initialCy = bbox.y + bbox.height;
+  let initialTotalY = bbox.height + bbox.y;
+  let newTotalY = bbox.height * scaleY + bbox.y;
 
-  // Compute translations; tx remains the same to keep the horizontal centering
-  const tx = (cx * (1 - x)) / x;
-  let ty = (bbox.height + bbox.y - (bbox.height + bbox.y * y)) * 6;
+  let ty = initialTotalY - newTotalY;
 
-  // Apply the transformation with the origin set to the bottom of the element
-  addTransform(element, `scale(${x} ${y}) translate(${tx} ${ty})`);
-
-  let newBBox = element.getBBox();
-  let newCy = newBBox.y + newBBox.height;
-  console.log("scaleTopDown", { initialCy, newCy, ty, bbox, newBBox, element });
-
-  // Stroke width adjustment, if necessary
-  if (
-    Math.abs(x) !== 1 ||
-    Math.abs(y) !== 1 ||
-    Math.abs(x) + Math.abs(y) !== 2
-  ) {
-    const factor = (Math.abs(x) + Math.abs(y)) / 2;
-    scaleStrokeWidthAndChildren(element, factor);
+  // Do this as scaling Y sub-1 makes the SVG contract towards the middle
+  //    So we add on the lost size, PLUS 50% of contraction to account for that movement towards middle
+  if (ty > 0) {
+    ty *= 1.5;
   }
+
+  addTransform(element, `scale(${1} ${scaleY}) translate(0 ${ty})`);
 };
 
 // Translate element such that its center is at (x, y). Specifying xAlign and yAlign can instead make (x, y) the left/right and top/bottom.
@@ -427,13 +415,6 @@ const drawFeature = (
 
       let shiftDirection = i == 1 ? 1 : -1;
       if (info.shiftWithEyes) {
-        console.log("Shift with eyes", {
-          shiftDirection,
-          eye: face.eye,
-          distance: face.eye.distance,
-          height: face.eye.height,
-          fatness: face.fatness,
-        });
         // @ts-ignore
         position[0] += shiftDirection * face.eye.distance;
         position[1] += -1 * face.eye.height;
@@ -466,15 +447,14 @@ const drawFeature = (
     }
 
     if (feature.hasOwnProperty("opacity")) {
-      console.log("Setting opacity", info.name, { feature, childElement });
       // @ts-ignore
       childElement.setAttribute("opacity", String(feature.opacity));
     }
 
     if (feature.hasOwnProperty("strokeWidthModifier")) {
-      // @ts-ignore
       scaleStrokeWidthAndChildren(
         childElement,
+        // @ts-ignore
         1 / feature.strokeWidthModifier,
       );
     }
@@ -639,7 +619,7 @@ export const display = (
     drawFeature(insideSVG, face, info);
   }
 
-  // if (face.height !== undefined) {
-  //   scaleTopDown(insideSVG, 1, heightScale(face.height));
-  // }
+  if (face.height !== undefined) {
+    scaleTopDown(insideSVG, heightScale(face.height));
+  }
 };

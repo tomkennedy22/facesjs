@@ -1,3 +1,5 @@
+import { m } from "framer-motion";
+
 export const genders = {
   accessories: {
     "eye-black": "both",
@@ -97,6 +99,8 @@ export const genders = {
     female7: "female",
     female8: "female",
     female9: "female",
+    "eyebrow-long": "male",
+    "eyebrow-notch": "both",
   },
   facialHair: {
     "beard-point": "male",
@@ -282,11 +286,14 @@ export const genders = {
     baseball2: "both",
     baseball3: "both",
     baseball4: "both",
-    football: "both",
-    football2: "both",
-    football3: "both",
-    football4: "both",
-    football5: "both",
+    "football-standard": "both",
+    "football-ponies": "both",
+    "football-sparta": "both",
+    "football-three-stripe": "both",
+    "football-two-stripe": "both",
+    suit: "both",
+    suit2: "both",
+    referee: "both",
     hockey: "both",
     hockey2: "both",
     hockey3: "both",
@@ -357,5 +364,8 @@ export const genders = {
   },
   earring: {
     "earring-hanging-diamond": "female",
+    "earring-silver-diamond": "female",
+    "earring-silver": "female",
+    "earring-stud": "both",
   },
 };

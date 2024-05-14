@@ -146,7 +146,7 @@ export const generate = (
   const face = {
     fatness: roundTwoDecimals((gender === "female" ? 0.4 : 1) * Math.random()),
     height: roundTwoDecimals(
-      gender === "female" ? 0.65 * Math.random() : 0.25 + 0.75 * Math.random(),
+      gender === "female" ? 0.65 * Math.random() : 0.4 + 0.6 * Math.random(),
     ),
     teamColors: teamColors,
     hairBg: {
