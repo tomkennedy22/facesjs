@@ -139,7 +139,12 @@ const getSkinAccent = (skinColor: string): string => {
     return skinColor;
   }
 
-  hsl.l = Math.max(0, hsl.l * 0.85, hsl.l - 0.2);
+  let modifiedLVals: number[] = [hsl.l * 0.9, hsl.l ** 2, (1 - hsl.l) * 1.25];
+  let lFurthestFromHalf: number[] = modifiedLVals.sort(
+    (a, b) => Math.abs(b - 0.5) - Math.abs(a - 0.5),
+  );
+
+  hsl.l = lFurthestFromHalf[0] as number;
   return rgbToHex(hslToRgb(hsl));
 };
 
