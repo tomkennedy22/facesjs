@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { optimize } from "svgo";
 import { genders } from "./genders.js";
 
@@ -7,7 +8,8 @@ const warning =
   "// THIS IS A GENERATED FILE, DO NOT EDIT BY HAND!\n// See tools/process-svgs.js";
 
 const processSVGs = async () => {
-  const svgFolder = path.join(import.meta.dirname, "..", "..", "svgs");
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const svgFolder = path.join(__dirname, "..", "..", "svgs");
 
   const folders = fs.readdirSync(svgFolder);
 
@@ -45,7 +47,7 @@ const processSVGs = async () => {
   }
 
   fs.writeFileSync(
-    path.join(import.meta.dirname, "..", "..", "src", "svgs.ts"),
+    path.join(__dirname, "..", "..", "src", "svgs.ts"),
     `${warning}\n\nexport default ${JSON.stringify(svgs)};`,
   );
 
@@ -71,7 +73,7 @@ const processSVGs = async () => {
     svgsGenders[key] = keyGenders;
   }
   fs.writeFileSync(
-    path.join(import.meta.dirname, "..", "..", "src", "svgs-index.ts"),
+    path.join(__dirname, "..", "..", "src", "svgs-index.ts"),
     `${warning}\n\nexport const svgsIndex = ${JSON.stringify(
       svgsIndex,
     )};\n\nexport const svgsGenders = ${JSON.stringify(svgsGenders)};`,

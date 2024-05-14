@@ -41,7 +41,7 @@ export type FeatureInfo = {
   size?: number;
 };
 
-export type Face = ReturnType<typeof generate>;
+export type FaceConfig = ReturnType<typeof generate>;
 
 export type HSL = {
   h: number;

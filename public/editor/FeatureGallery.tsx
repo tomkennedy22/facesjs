@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import override from "../../src/override";
-import { Face as FaceType } from "../../src/types";
+import { FaceConfig } from "../../src";
 import { useStateStore } from "./stateStore";
 import { Shuffle, LockSimpleOpen, LockSimple } from "@phosphor-icons/react";
 import {
@@ -23,7 +23,8 @@ import {
   newFaceConfigFromOverride,
 } from "./overrideList";
 import { CombinedState, GallerySectionConfig, OverrideListItem } from "./types";
-import { Face } from "./Face";
+import { ColorPicker } from "./ColorPicker";
+import { Face } from "../../src/Face";
 
 const inputOnChange = ({
   chosenValue,
@@ -34,7 +35,7 @@ const inputOnChange = ({
   stateStoreProps,
 }: {
   chosenValue: unknown;
-  faceConfig: FaceType;
+  faceConfig: FaceConfig;
   key: string;
   overrideList: OverrideListItem[];
   sectionIndex: number;
@@ -247,6 +248,10 @@ const FeatureSelector = ({
       });
     };
 
+    let colorFormat = gallerySectionConfig.colorFormat
+      ? gallerySectionConfig.colorFormat
+      : "hex";
+
     return (
       <div
         key={sectionIndex}
@@ -259,28 +264,37 @@ const FeatureSelector = ({
             // @ts-expect-error TS doesnt like conditional array vs string
             hasMultipleColors ? selectedVal[colorIndex] : selectedVal;
 
+          let presetColors = hasMultipleColors
+            ? gallerySectionConfig.renderOptions.valuesToRender.map(
+                (colorList: string[]) => colorList[colorIndex],
+              )
+            : gallerySectionConfig.renderOptions.valuesToRender;
+
           return (
-            <div key={colorIndex} className="w-48">
+            <div key={colorIndex} className="w-fit">
               {colorIndex === 0 ? (
                 <label className="text-xs text-foreground-600 mb-2">
                   {gallerySectionConfig.text}
                 </label>
               ) : null}
               <div key={colorIndex} className="flex gap-2">
-                <Input
-                  type="color"
-                  value={selectedColor}
-                  onValueChange={(e) => {
+                <ColorPicker
+                  onChange={(color) => {
                     colorInputOnChange({
-                      newColorValue: e,
+                      newColorValue: color,
                       hasMultipleColors,
                       colorIndex,
                     });
                   }}
+                  colorFormat={colorFormat}
+                  presetColors={presetColors}
+                  allowAlpha={gallerySectionConfig.allowAlpha}
+                  value={selectedColor}
                 />
                 <Input
                   value={selectedColor}
                   isInvalid={!inputValidationArr[colorIndex]}
+                  className="min-w-52"
                   onChange={(e) => {
                     colorInputOnChange({
                       newColorValue: e.target.value,
@@ -306,7 +320,7 @@ const updateStores = ({
   sectionIndex,
   stateStoreProps,
 }: {
-  faceConfig: FaceType;
+  faceConfig: FaceConfig;
   faceIndex: number;
   sectionIndex: number;
   stateStoreProps: CombinedState;
@@ -431,10 +445,10 @@ export const FeatureGallery = () => {
                       }}
                     >
                       <Face
-                        faceConfig={faceConfig}
+                        face={faceConfig}
                         overrides={overrideToRun.override}
-                        width={faceWidth}
-                        lazyLoad={true}
+                        style={{ width: faceWidth }}
+                        lazy
                       />
                     </div>
                   );

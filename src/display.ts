@@ -1,6 +1,6 @@
 import override from "./override.js";
 import svgs from "./svgs.js";
-import { Face, Overrides, RGB, HSL, HEX, FeatureInfo } from "./types";
+import { FaceConfig, Overrides, RGB, HSL, HEX, FeatureInfo } from "./types";
 
 // Convert hex color to RGB
 export const hexToRgb = (hex: HEX): RGB | null => {
@@ -269,7 +269,11 @@ const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
 // @ts-ignore
 const heightScale = (height: number) => 0.85 + 0.3 * height;
 
-const drawFeature = (svg: SVGSVGElement, face: Face, info: FeatureInfo) => {
+const drawFeature = (
+  svg: SVGSVGElement,
+  face: FaceConfig,
+  info: FeatureInfo,
+) => {
   const feature = face[info.name];
   if (!feature || !svgs[info.name]) {
     return;
@@ -423,6 +427,13 @@ const drawFeature = (svg: SVGSVGElement, face: Face, info: FeatureInfo) => {
 
       let shiftDirection = i == 1 ? 1 : -1;
       if (info.shiftWithEyes) {
+        console.log("Shift with eyes", {
+          shiftDirection,
+          eye: face.eye,
+          distance: face.eye.distance,
+          height: face.eye.height,
+          fatness: face.fatness,
+        });
         // @ts-ignore
         position[0] += shiftDirection * face.eye.distance;
         position[1] += -1 * face.eye.height;
@@ -454,9 +465,18 @@ const drawFeature = (svg: SVGSVGElement, face: Face, info: FeatureInfo) => {
       scaleCentered(childElement, scale, scale);
     }
 
-    if (info.opaqueLines) {
+    if (feature.hasOwnProperty("opacity")) {
+      console.log("Setting opacity", info.name, { feature, childElement });
       // @ts-ignore
-      childElement.setAttribute("stroke-opacity", String(face.lineOpacity));
+      childElement.setAttribute("opacity", String(feature.opacity));
+    }
+
+    if (feature.hasOwnProperty("strokeWidthModifier")) {
+      // @ts-ignore
+      scaleStrokeWidthAndChildren(
+        childElement,
+        1 / feature.strokeWidthModifier,
+      );
     }
 
     if (info.scaleFatness && info.positions[0] !== null) {
@@ -490,7 +510,7 @@ const drawFeature = (svg: SVGSVGElement, face: Face, info: FeatureInfo) => {
 
 export const display = (
   container: HTMLElement | string | null,
-  face: Face,
+  face: FaceConfig,
   overrides?: Overrides,
 ): void => {
   override(face, overrides);
@@ -619,7 +639,7 @@ export const display = (
     drawFeature(insideSVG, face, info);
   }
 
-  if (face.height !== undefined) {
-    scaleTopDown(insideSVG, 1, heightScale(face.height));
-  }
+  // if (face.height !== undefined) {
+  //   scaleTopDown(insideSVG, 1, heightScale(face.height));
+  // }
 };
