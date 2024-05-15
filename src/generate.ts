@@ -186,7 +186,7 @@ export const generate = (
       id: getID("eyeLine", gender),
       opacity:
         Math.random() < 0.75 ? roundTwoDecimals(0.6 + 0.4 * Math.random()) : 0,
-      strokeWidthModifier: roundTwoDecimals(2 * Math.random()),
+      strokeWidthModifier: roundTwoDecimals(1 + Math.random()),
     },
     smileLine: {
       id: getID("smileLine", gender),
@@ -196,14 +196,14 @@ export const generate = (
           ? 0
           : 0.6 + 0.4 * Math.random(),
       ),
-      strokeWidthModifier: roundTwoDecimals(1.4 * Math.random()),
+      strokeWidthModifier: roundTwoDecimals(1 + 0.5 * Math.random()),
     },
     miscLine: {
       id: getID("miscLine", gender),
       opacity: roundTwoDecimals(
         Math.random() < 0.5 ? 0 : 0.6 + 0.4 * Math.random(),
       ),
-      strokeWidthModifier: roundTwoDecimals(2 * Math.random()),
+      strokeWidthModifier: roundTwoDecimals(1 + Math.random()),
     },
     facialHair: {
       id: Math.random() < 0.5 ? getID("facialHair", gender) : "none",
@@ -228,7 +228,7 @@ export const generate = (
     mouth: {
       id: getID("mouth", gender),
       flip: isFlipped(),
-      size: roundTwoDecimals(0.6 + Math.random() * 0.6),
+      size: roundTwoDecimals(0.8 + Math.random() * 0.4),
     },
     nose: {
       id: getID("nose", gender),

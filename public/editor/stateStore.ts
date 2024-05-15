@@ -113,7 +113,7 @@ const gallerySectionInfos: (Pick<
     selectionType: "range",
     renderOptions: {
       rangeConfig: {
-        min: 0.6,
+        min: 0.8,
         max: 1.2,
       },
     },
