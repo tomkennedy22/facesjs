@@ -1,86 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="crop-fade2.svg"
-   id="svg130"
-   version="1.1"
-   height="600"
-   width="400"
-   viewBox="0 0 400 600">
-  <metadata
-     id="metadata134">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <sodipodi:namedview
-     inkscape:current-layer="svg130"
-     inkscape:window-maximized="1"
-     inkscape:window-y="-8"
-     inkscape:window-x="1912"
-     inkscape:cy="323.80952"
-     inkscape:cx="85.416667"
-     inkscape:zoom="1.8"
-     showgrid="false"
-     id="namedview132"
-     inkscape:window-height="1417"
-     inkscape:window-width="2560"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0"
-     guidetolerance="10"
-     gridtolerance="10"
-     objecttolerance="10"
-     borderopacity="1"
-     bordercolor="#666666"
-     pagecolor="#ffffff" />
-  <defs
-     id="defs123">
-    <linearGradient
-       y2="310"
-       x2="200"
-       y1="100"
-       x1="200"
-       gradientUnits="userSpaceOnUse"
-       id="shortfade">
-      <stop
-         id="stop118"
-         stop-color="rgba(0,0,0,.25)"
-         offset="0" />
-      <stop
-         id="stop120"
-         stop-color="rgba(0,0,0,0)"
-         offset="1" />
-    </linearGradient>
-  </defs>
-  <style
-     id="style125">
-		tspan { white-space:pre }
-		.short_fade { fill: url(#shortfade);stroke: none} 
-	</style>
-  <g
-     id="short fade">
-    <path
-       sodipodi:nodetypes="ccsssccsssssssc"
-       d="M 60,310 H 50 v -10 c 0,-140 50,-200 150,-200 100,0 150,60 150,200 v 10 h -10 v -20 c 0,-5 -10,-20 -15,-25 -5,-5 -5,-55 -15,-65 C 270,160 253.57143,161.90476 203.57143,161.90476 153.57143,161.90476 130,160 90,200 c -10,10 -10,60 -15,65 -5,5 -15,20 -15,25 z"
-       class="short_fade"
-       id="Short Fade" />
-  </g>
-  <path
-     sodipodi:nodetypes="scssssscs"
-     fill="$[hairColor]"
-     d="m 200,94.999995 c 120,0 140,89.999625 140,114.999515 -20,0 -20,4.99998 -25,0 -5,-4.99998 -14.44444,-11.11105 -49.44444,-11.11105 -15,0 -39.96032,-0.31746 -64.96032,-0.31746 -25,0 -50.03968,0.31746 -65.03967,0.31746 -35,0 -45.555566,6.11107 -50.555571,11.11105 -5.000001,4.99998 -5.000001,0 -25.000004,0 C 59.999995,184.99962 84.999999,94.999995 200,94.999995 Z"
-     id="crop" />
+<svg width="100%" height="100%" viewBox="0 0 400 600">
+    <g id="short-fade">
+        <path id="Short-Fade" d="M60,310L50,310L50,300C50,160 100,100 200,100C300,100 350,160 350,300L350,310L340,310L340,290C340,285 330,270 325,265C320,260 320,210 310,200C270,160 253.571,161.905 203.571,161.905C153.571,161.905 130,160 90,200C80,210 80,260 75,265C70,270 60,285 60,290L60,310Z" style="fill:url(#_Linear1);fill-rule:nonzero;"/>
+    </g>
+    <path id="crop" d="M340,210C340,161.034 302.335,118.226 257.48,103.47C191.294,81.698 109.436,98.377 73.975,162.627C66.352,176.437 60,193.932 60,210C63.887,210 67.774,210.303 71.641,210.703C75.04,211.054 78.5,213.008 81.797,212.109C85.079,211.214 87.08,207.747 90.087,206.154C97.372,202.295 105.452,200.742 113.594,199.921C132.77,197.989 200.532,198.571 200.595,198.571C229.515,198.571 258.574,196.978 287.344,199.921C295.366,200.742 303.01,202.251 310.087,206.154C313.025,207.775 314.966,211.226 318.203,212.109C321.5,213.008 324.96,211.054 328.359,210.703C332.226,210.303 336.113,210 340,210Z" style="fill:$[hairColor];fill-rule:nonzero;"/>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0,210,-210,0,200,100)">
+         <stop offset="0" style="stop-color:black;stop-opacity:0.25"/>
+         <stop offset="1" style="stop-color:black;stop-opacity:0"/>
+        </linearGradient>
+    </defs>
 </svg>

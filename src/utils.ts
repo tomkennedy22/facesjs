@@ -30,3 +30,18 @@ export const randomInt = (
   }
   return Math.floor(Math.random() * (max - minInclusive)) + minInclusive;
 };
+
+export const weightedRandomChoice = (list: [any, number][]): any => {
+  const totalWeight = list.reduce((sum, [_, weight]) => sum + weight, 0);
+  const randomWeight = Math.random() * totalWeight;
+
+  let cumulativeWeight = 0;
+  for (const [item, weight] of list) {
+    cumulativeWeight += weight;
+    if (randomWeight < cumulativeWeight) {
+      return item;
+    }
+  }
+
+  return list[0][0];
+};

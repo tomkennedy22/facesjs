@@ -24,9 +24,7 @@ const clipToParent = (
   let childElement = getChildElement(fullSvg, insertLocation) as SVGSVGElement;
   let clippedItem = paper.project.importSVG(childElement);
   fullSvg.removeChild(childElement);
-  let baseShape = new paper.CompoundPath({
-    children: findPathItems(parentElement.clone()),
-  });
+  let baseShape = unitePaths(findPathItems(parentElement.clone()));
 
   let smallChildren = findPathItems(clippedItem);
   let childGroup = new paper.Group();
@@ -70,15 +68,8 @@ const findPathItems = (item: paper.Item): paper.PathItem[] => {
   return paths;
 };
 
-const getOuterStroke = (svgElement: SVGElement): string => {
-  paper.setup(document.createElement("canvas"));
-
-  const importedItem = paper.project.importSVG(svgElement);
-
-  const pathItems = findPathItems(importedItem);
-
-  // Unite all the path items into a single path
-  const unitedPath = pathItems.reduce(
+const unitePaths = (paths: paper.PathItem[]): paper.Path => {
+  let unitedPath = paths.reduce(
     (result, path) => {
       if (result) {
         result = result.unite(path);
@@ -89,6 +80,19 @@ const getOuterStroke = (svgElement: SVGElement): string => {
     },
     null as paper.PathItem | null,
   ) as paper.Path;
+
+  return unitedPath;
+};
+
+const getOuterStroke = (svgElement: SVGElement): string => {
+  paper.setup(document.createElement("canvas"));
+
+  const importedItem = paper.project.importSVG(svgElement);
+
+  const pathItems = findPathItems(importedItem);
+
+  // Unite all the path items into a single path
+  const unitedPath = unitePaths(pathItems);
 
   unitedPath.strokeColor = new paper.Color("black");
   unitedPath.strokeWidth = 5;
@@ -476,7 +480,7 @@ const drawFeature = (
   // @ts-ignore
   if (feature.shave) {
     // @ts-ignore
-    featureSVGString = featureSVGString.replace("$[headShave]", feature.shave);
+    featureSVGString = featureSVGString.replace("$[headShave]", "none");
   }
 
   featureSVGString = featureSVGString.replace("$[skinColor]", face.body.color);
@@ -776,6 +780,7 @@ export const display = (
       baseFace = paper.project.importSVG(insideSVG);
     }
 
+    console.log({ metadata, info, feature });
     if (metadata.clip) {
       clipToParent(insideSVG, baseFace, "beforeend");
     }

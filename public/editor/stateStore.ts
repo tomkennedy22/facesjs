@@ -17,7 +17,6 @@ const gallerySectionInfos: (Pick<
     | {
         selectionType: "color";
         colorFormat: "rgba" | "hex";
-        allowAlpha: boolean;
         renderOptions: {
           valuesToRender: string[];
         };
@@ -25,7 +24,6 @@ const gallerySectionInfos: (Pick<
     | {
         selectionType: "colors";
         colorFormat: "rgba" | "hex";
-        allowAlpha: boolean;
         renderOptions: {
           colorCount: number;
           valuesToRender: string[][];
@@ -53,7 +51,6 @@ const gallerySectionInfos: (Pick<
     isSelected: true,
     selectionType: "color",
     colorFormat: "hex",
-    allowAlpha: false,
     renderOptions: {
       valuesToRender: distinctSkinColors,
     },
@@ -194,7 +191,6 @@ const gallerySectionInfos: (Pick<
     text: "Hair Color",
     selectionType: "color",
     colorFormat: "hex",
-    allowAlpha: false,
     renderOptions: {
       valuesToRender: distinctHairColors,
     },
@@ -214,7 +210,6 @@ const gallerySectionInfos: (Pick<
     text: "Shave Style",
     selectionType: "color",
     colorFormat: "rgba",
-    allowAlpha: true,
     renderOptions: {
       valuesToRender: [
         "rgba(0,0,0,0)",
@@ -383,7 +378,6 @@ const gallerySectionInfos: (Pick<
     text: "Team Colors",
     selectionType: "colors",
     colorFormat: "hex",
-    allowAlpha: false,
     renderOptions: {
       colorCount: 3,
       valuesToRender: jerseyColorOptions,

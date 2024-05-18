@@ -1,8 +1,13 @@
 import { colors, jerseyColorOptions } from "./globals.js";
 import override from "./override.js";
-import { svgsGenders, svgsIndex } from "./svgs-index.js";
+import { svgsGenders, svgsIndex, svgsMetadata } from "./svgs-index.js";
 import { Feature, Gender, Overrides, Race, TeamColors } from "./types.js";
-import { pickRandom, randomGaussian, randomInt } from "./utils.js";
+import {
+  pickRandom,
+  randomGaussian,
+  randomInt,
+  weightedRandomChoice,
+} from "./utils";
 
 const getID = (type: Feature, gender: Gender): string => {
   const validIDs = svgsIndex[type].filter((_id, index) => {
@@ -12,6 +17,21 @@ const getID = (type: Feature, gender: Gender): string => {
   });
 
   return validIDs[randomInt(0, validIDs.length)];
+};
+
+const getIDWithOccurance = (type: Feature, gender: Gender): string => {
+  const validIDsWeightMap: [any, number][] = svgsIndex[type]
+    .filter((_id, index) => {
+      return (
+        svgsMetadata[type][index].gender === "both" ||
+        svgsGenders[type][index] === gender
+      );
+    })
+    .map((_id, index) => {
+      return [svgsIndex[type][index], svgsMetadata[type][index].occurance];
+    });
+
+  return weightedRandomChoice(validIDsWeightMap);
 };
 
 const roundTwoDecimals = (x: number) => Math.round(x * 100) / 100;
@@ -93,10 +113,11 @@ export const generate = (
     },
     head: {
       id: getID("head", gender),
-      shaveOpacity:
-        gender === "male" && Math.random() < 0.35
+      shave: `rgba(0,0,0,${
+        gender === "male" && Math.random() < 0.25
           ? roundTwoDecimals(Math.random() / 5)
-          : 0,
+          : 0
+      })`,
     },
     eyeLine: {
       id: getID("eyeLine", gender),
@@ -137,7 +158,7 @@ export const generate = (
       angle: randomInt(-15, 20, true),
     },
     hair: {
-      id: getID("hair", gender),
+      id: getIDWithOccurance("hair", gender),
       color: hairColor,
       flip: isFlipped(),
     },
