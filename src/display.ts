@@ -1,6 +1,68 @@
 import override from "./override.js";
 import svgs from "./svgs.js";
 import { FaceConfig, Overrides, RGB, HSL, HEX, FeatureInfo } from "./types";
+// @ts-ignore
+import paper from "paper-jsdom";
+
+const calcChildElement = (
+  svg: SVGSVGElement,
+  insertPosition: "afterbegin" | "beforeend",
+) => {
+  if (insertPosition === "afterbegin") {
+    return svg.firstChild;
+  } else {
+    return svg.lastChild;
+  }
+};
+
+const getOuterStroke = (svgElement: SVGElement): paper.Path => {
+  // Initialize Paper.js project
+  paper.setup(document.createElement("canvas"));
+
+  // Import the SVGElement into Paper.js
+  const importedItem = paper.project.importSVG(svgElement);
+
+  // Recursively find all path items in the imported item and its children
+  function findPathItems(item: paper.Item): paper.PathItem[] {
+    let paths: paper.PathItem[] = [];
+
+    if (item instanceof paper.PathItem) {
+      paths.push(item);
+    }
+
+    if (item.children) {
+      item.children.forEach((child: any) => {
+        paths = paths.concat(findPathItems(child));
+      });
+    }
+
+    return paths;
+  }
+
+  const pathItems = findPathItems(importedItem);
+
+  // Unite all the path items into a single path
+  const unitedPath = pathItems.reduce(
+    (result, path) => {
+      if (result) {
+        result = result.unite(path);
+      } else {
+        result = path;
+      }
+      return result;
+    },
+    null as paper.PathItem | null,
+  ) as paper.Path;
+
+  unitedPath.strokeColor = new paper.Color("black");
+  unitedPath.strokeWidth = 4;
+  unitedPath.fillColor = new paper.Color("transparent");
+
+  // Remove the imported item and its children from the project
+  importedItem.remove();
+
+  return unitedPath;
+};
 
 // Convert hex color to RGB
 export const hexToRgb = (hex: HEX): RGB | null => {
@@ -352,6 +414,13 @@ const drawFeature = (
     return;
   }
 
+  if (
+    ["suit", "suit2", "referee"].includes(face.jersey.id) &&
+    info.name == "body"
+  ) {
+    feature.id = "body";
+  }
+
   // @ts-ignore
   let featureSVGString = svgs[info.name][feature.id];
   if (!featureSVGString) {
@@ -412,17 +481,9 @@ const drawFeature = (
     : "beforeend";
   // let whichChild: 'firstChild' | 'lastChild' = insertPosition == "beforebegin" ? 'firstChild' : 'lastChild';
 
-  const calcChildElement = () => {
-    if (insertPosition === "afterbegin") {
-      return svg.firstChild;
-    } else {
-      return svg.lastChild;
-    }
-  };
-
   for (let i = 0; i < info.positions.length; i++) {
     svg.insertAdjacentHTML(insertPosition, addWrapper(featureSVGString));
-    let childElement = calcChildElement() as SVGSVGElement;
+    let childElement = calcChildElement(svg, insertPosition) as SVGSVGElement;
 
     const position = info.positions[i];
 
@@ -502,7 +563,7 @@ const drawFeature = (
     }
   }
 
-  let childElement = calcChildElement() as SVGSVGElement;
+  let childElement = calcChildElement(svg, insertPosition) as SVGSVGElement;
 
   if (
     info.scaleFatness &&
@@ -657,6 +718,14 @@ export const display = (
 
   for (const info of featureInfos) {
     drawFeature(insideSVG, face, info);
+
+    if (info.name == "hair") {
+      let outerStroke = getOuterStroke(insideSVG);
+      insideSVG.insertAdjacentHTML(
+        "beforeend",
+        outerStroke.exportSVG({ asString: true }),
+      );
+    }
   }
 
   if (face.height !== undefined) {

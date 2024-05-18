@@ -1,59 +1,8 @@
+import { colors, jerseyColorOptions } from "./globals.js";
 import override from "./override.js";
 import { svgsGenders, svgsIndex } from "./svgs-index.js";
 import { Feature, Gender, Overrides, Race, TeamColors } from "./types.js";
-
-export const jerseyColorOptions: TeamColors[] = [
-  ["#98002E", "#BC9B6A", "#FFFFFF"],
-  ["#F56600", "#522D80", "#FFFFFF"],
-  ["#B3A369", "#003057", "#FFFFFF"],
-  ["#CC0000", "#000000", "#FFFFFF"],
-  ["#0C2340", "#C99700", "#00843D"],
-  ["#003594", "#FFB81C", "#FFFFFF"],
-  ["#630031", "#CF4420", "#FFFFFF"],
-  ["#24135F", "#AD8900", "#000000"],
-  ["#311D00", "#FF3C00", "#FFFFFF"],
-  ["#552583", "#FDB927", "#FFFFFF"],
-  ["#00538C", "#002B5E", "#FFFFFF"],
-  ["#007AC1", "#EF3B24", "#002D62"],
-  ["#007A33", "#FFFFFF", "#BA9653"],
-  ["#98002E", "#F9A01B", "#FFFFFF"],
-  ["#00471B", "#EEE1C6", "#FFFFFF"],
-  ["#F74902", "#000000", "#FFFFFF"],
-  ["#6F263D", "#236192", "#A2AAAD"],
-  ["#BB0000", "#666666", "#FFFFFF"],
-  ["#7A0019", "#FFCC33", "#FFFFFF"],
-  ["#4E2A84", "#FFFFFF", "#000000"],
-  ["#FFCD00", "#000000", "#FFFFFF"],
-];
-
-export const randomGaussian = (min: number, max: number) => {
-  let u = 0,
-    v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-
-  num = num / 10.0 + 0.5;
-  if (num > 1 || num < 0) num = randomGaussian(min, max);
-  num *= max - min;
-  num += min;
-  return num;
-};
-
-const pickRandom = (arr: any[]): any => {
-  return arr[Math.floor(Math.random() * arr.length)];
-};
-
-function randomInt(
-  minInclusive: number,
-  max: number,
-  inclusiveMax: boolean = false,
-) {
-  if (inclusiveMax) {
-    max += 1;
-  }
-  return Math.floor(Math.random() * (max - minInclusive)) + minInclusive;
-}
+import { pickRandom, randomGaussian, randomInt } from "./utils.js";
 
 const getID = (type: Feature, gender: Gender): string => {
   const validIDs = svgsIndex[type].filter((_id, index) => {
@@ -63,39 +12,6 @@ const getID = (type: Feature, gender: Gender): string => {
   });
 
   return validIDs[randomInt(0, validIDs.length)];
-};
-
-export const colors = {
-  white: {
-    skin: ["#f2d6cb", "#ddb7a0"],
-    hair: [
-      "#272421",
-      "#3D2314",
-      "#5A3825",
-      "#CC9966",
-      "#2C1608",
-      "#B55239",
-      "#e9c67b",
-      "#D7BF91",
-    ],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
-  },
-  asian: {
-    // https://imgur.com/a/GrBuWYw
-    skin: ["#fedac7", "#f0c5a3", "#eab687"],
-    hair: ["#272421", "#0f0902"],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
-  },
-  brown: {
-    skin: ["#bb876f", "#aa816f", "#a67358"],
-    hair: ["#272421", "#1c1008"],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
-  },
-  black: {
-    skin: ["#ad6453", "#74453d", "#5c3937"],
-    hair: ["#272421"],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
-  },
 };
 
 const roundTwoDecimals = (x: number) => Math.round(x * 100) / 100;
@@ -212,7 +128,7 @@ export const generate = (
       id: getID("eye", gender),
       angle: eyeAngle,
       color: eyeColor,
-      size: roundTwoDecimals(0.85 + Math.random() * 0.3),
+      size: roundTwoDecimals(0.9 + Math.random() * 0.2),
       distance: roundTwoDecimals(8 * Math.random() - 6),
       height: roundTwoDecimals(20 * Math.random() - 10),
     },

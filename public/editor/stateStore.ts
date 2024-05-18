@@ -129,8 +129,8 @@ const gallerySectionInfos: (Pick<
     selectionType: "range",
     renderOptions: {
       rangeConfig: {
-        min: 0.75,
-        max: 1.25,
+        min: 0.9,
+        max: 1.1,
       },
     },
   },
@@ -397,7 +397,7 @@ const gallerySectionConfigList: GallerySectionConfig[] =
       const rangeConfig = gallerySectionConfig.renderOptions.rangeConfig;
 
       const range = rangeConfig.max - rangeConfig.min;
-      const step = roundTwoDecimals(range / 5);
+      const step = roundTwoDecimals(range / 4);
       const sliderStep = Math.max(roundTwoDecimals(range / 35), 0.01);
 
       const valuesToRender = generateRangeFromStep(

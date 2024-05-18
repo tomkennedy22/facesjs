@@ -71,10 +71,8 @@
 		.short_fade { fill: url(#shortfade);stroke: none} 
 	</style>
   <g
-     style="opacity:1;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
      id="short fade">
     <path
-       style="stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
        sodipodi:nodetypes="ccsssccsssssssc"
        d="M 60,310 H 50 v -10 c 0,-140 50,-200 150,-200 100,0 150,60 150,200 v 10 h -10 v -20 c 0,-5 -10,-20 -15,-25 -5,-5 -5,-55 -15,-65 C 270,160 253.57143,161.90476 203.57143,161.90476 153.57143,161.90476 130,160 90,200 c -10,10 -10,60 -15,65 -5,5 -15,20 -15,25 z"
        class="short_fade"
@@ -82,8 +80,6 @@
   </g>
   <path
      sodipodi:nodetypes="scssssscs"
-     stroke-width="3.99999"
-     stroke="#000000"
      fill="$[hairColor]"
      d="m 200,94.999995 c 120,0 140,89.999625 140,114.999515 -20,0 -20,4.99998 -25,0 -5,-4.99998 -14.44444,-11.11105 -49.44444,-11.11105 -15,0 -39.96032,-0.31746 -64.96032,-0.31746 -25,0 -50.03968,0.31746 -65.03967,0.31746 -35,0 -45.555566,6.11107 -50.555571,11.11105 -5.000001,4.99998 -5.000001,0 -25.000004,0 C 59.999995,184.99962 84.999999,94.999995 200,94.999995 Z"
      id="crop" />

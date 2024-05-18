@@ -1,6 +1,6 @@
 import override from "../../src/override";
 import { svgsIndex } from "../../src/svgs-index";
-import { Face as FaceType, Overrides } from "../../src/types";
+import { FaceConfig, Overrides } from "../../src/types";
 import { GallerySectionConfig, OverrideListItem } from "./types";
 import { deepCopy, doesStrLookLikeColor, luma, setToDict } from "./utils";
 
@@ -82,7 +82,7 @@ export const getOverrideListForItem = (
 };
 
 export const newFaceConfigFromOverride = (
-  faceConfig: FaceType,
+  faceConfig: FaceConfig,
   key: string,
   chosenValue: unknown,
 ) => {

@@ -1,5 +1,3 @@
-import { m } from "framer-motion";
-
 export const genders = {
   accessories: {
     "eye-black": "both",
