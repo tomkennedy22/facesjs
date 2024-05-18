@@ -692,10 +692,6 @@ export const display = (
       strokeColor: faceLineStrokeColor,
     },
     {
-      name: "mouth",
-      positions: [[200, 440]],
-    },
-    {
       name: "eye",
       positions: [
         [140, 310],
@@ -719,6 +715,10 @@ export const display = (
       name: "facialHair",
       positions: [null],
       scaleFatness: true,
+    },
+    {
+      name: "mouth",
+      positions: [[200, 440]],
     },
     {
       name: "hair",
@@ -782,7 +782,7 @@ export const display = (
 
     console.log({ metadata, info, feature });
     if (metadata.clip) {
-      clipToParent(insideSVG, baseFace, "beforeend");
+      clipToParent(insideSVG, baseFace.clone(), "beforeend");
     }
 
     // After we add hair (which is last feature on face), add outer stroke to wrap entire face
