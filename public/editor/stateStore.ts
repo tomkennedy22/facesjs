@@ -505,7 +505,7 @@ const createGallerySlice: StateCreator<CombinedState, [], [], CombinedState> = (
       };
     }),
   gallerySectionConfigList,
-  gallerySize: "md",
+  gallerySize: "sm",
   setGallerySize: (size: GallerySize) =>
     set((state: CombinedState) => {
       return { ...state, gallerySize: size };

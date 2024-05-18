@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { optimize } from "svgo";
 import { genders } from "./genders.js";
+import { svgMetadata } from "./svg-metadata.js";
 
 const warning =
   "// THIS IS A GENERATED FILE, DO NOT EDIT BY HAND!\n// See tools/process-svgs.js";
@@ -57,6 +58,7 @@ const processSVGs = async () => {
   for (const key of Object.keys(svgsIndex)) {
     svgsIndex[key] = Object.keys(svgsIndex[key]);
   }
+
   const svgsGenders = {
     ...svgsIndex,
   };
@@ -72,11 +74,28 @@ const processSVGs = async () => {
     }
     svgsGenders[key] = keyGenders;
   }
+
+  const svgsMetadata = {
+    ...svgsIndex,
+  };
+  for (const key of Object.keys(svgsMetadata)) {
+    const keyMetadata = [];
+    for (const featureName of svgsMetadata[key]) {
+      let metadata = svgMetadata[key][featureName];
+      metadata.name = featureName;
+      if (metadata === undefined) {
+        console.log(`Unknown metadata for ${key}/${featureName}`);
+        metadata = { gender: "both", occurance: 1 };
+      }
+      keyMetadata.push(metadata);
+    }
+    svgsMetadata[key] = keyMetadata;
+  }
   fs.writeFileSync(
     path.join(__dirname, "..", "..", "src", "svgs-index.ts"),
     `${warning}\n\nexport const svgsIndex = ${JSON.stringify(
       svgsIndex,
-    )};\n\nexport const svgsGenders = ${JSON.stringify(svgsGenders)};`,
+    )};\n\nexport const svgsGenders = ${JSON.stringify(svgsGenders)};\n\nexport const svgsMetadata = ${JSON.stringify(svgsMetadata)};`,
   );
 
   console.log(

@@ -3,8 +3,9 @@ import svgs from "./svgs.js";
 import { FaceConfig, Overrides, RGB, HSL, HEX, FeatureInfo } from "./types";
 // @ts-ignore
 import paper from "paper-jsdom";
+import { svgsIndex, svgsMetadata } from "./svgs-index.js";
 
-const calcChildElement = (
+const getChildElement = (
   svg: SVGSVGElement,
   insertPosition: "afterbegin" | "beforeend",
 ) => {
@@ -15,29 +16,64 @@ const calcChildElement = (
   }
 };
 
-const getOuterStroke = (svgElement: SVGElement): paper.Path => {
-  // Initialize Paper.js project
+const clipToParent = (
+  fullSvg: SVGSVGElement,
+  parentElement: any,
+  insertLocation: "afterbegin" | "beforeend",
+) => {
+  let childElement = getChildElement(fullSvg, insertLocation) as SVGSVGElement;
+  let clippedItem = paper.project.importSVG(childElement);
+  fullSvg.removeChild(childElement);
+  let baseShape = new paper.CompoundPath({
+    children: findPathItems(parentElement.clone()),
+  });
+
+  let smallChildren = findPathItems(clippedItem);
+  let childGroup = new paper.Group();
+  for (let child of smallChildren) {
+    child.stroke = null;
+    child.strokeWidth = 0;
+
+    let intersection = baseShape.intersect(child);
+
+    intersection.fillColor = child.fillColor;
+    intersection.strokeColor = child.strokeColor;
+    intersection.strokeWidth = child.strokeWidth;
+
+    childGroup.addChild(intersection);
+  }
+
+  let resultSVG = childGroup.exportSVG({ asString: true });
+  fullSvg.insertAdjacentHTML(insertLocation, resultSVG);
+
+  childGroup.remove();
+
+  let newlyAddedElement = getChildElement(
+    fullSvg,
+    insertLocation,
+  ) as SVGSVGElement;
+  newlyAddedElement.setAttribute("class", "clipToParent Output");
+};
+
+const findPathItems = (item: paper.Item): paper.PathItem[] => {
+  let paths: paper.PathItem[] = [];
+
+  if (item.children) {
+    item.children.forEach((child: any) => {
+      paths = paths.concat(findPathItems(child));
+    });
+  }
+  if (item instanceof paper.PathItem) {
+    paths.push(item);
+  }
+
+  return paths;
+};
+
+const getOuterStroke = (svgElement: SVGElement): string => {
   paper.setup(document.createElement("canvas"));
 
-  // Import the SVGElement into Paper.js
   const importedItem = paper.project.importSVG(svgElement);
-
-  // Recursively find all path items in the imported item and its children
-  function findPathItems(item: paper.Item): paper.PathItem[] {
-    let paths: paper.PathItem[] = [];
-
-    if (item instanceof paper.PathItem) {
-      paths.push(item);
-    }
-
-    if (item.children) {
-      item.children.forEach((child: any) => {
-        paths = paths.concat(findPathItems(child));
-      });
-    }
-
-    return paths;
-  }
 
   const pathItems = findPathItems(importedItem);
 
@@ -55,13 +91,13 @@ const getOuterStroke = (svgElement: SVGElement): paper.Path => {
   ) as paper.Path;
 
   unitedPath.strokeColor = new paper.Color("black");
-  unitedPath.strokeWidth = 4;
+  unitedPath.strokeWidth = 5;
   unitedPath.fillColor = new paper.Color("transparent");
 
   // Remove the imported item and its children from the project
   importedItem.remove();
 
-  return unitedPath;
+  return unitedPath.exportSVG({ asString: true });
 };
 
 // Convert hex color to RGB
@@ -222,7 +258,8 @@ const getHairAccent = (hairColor: string): string => {
   }
 };
 
-const addWrapper = (svgString: string) => `<g>${svgString}</g>`;
+const addWrapper = (svgString: string, objectTitle?: string) =>
+  `<g class="${objectTitle}">${svgString}</g>`;
 
 const addTransform = (element: SVGGraphicsElement, newTransform: string) => {
   const oldTransform = element.getAttribute("transform");
@@ -346,6 +383,8 @@ const translate = (
 
 // Defines the range of fat/skinny, relative to the original width of the default head.
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
+
+// Shotest/tallest range is only 0.85 to 1.15
 // @ts-ignore
 const heightScale = (height: number) => 0.85 + 0.3 * height;
 
@@ -414,6 +453,7 @@ const drawFeature = (
     return;
   }
 
+  // Dont let huge muscles be outside bounds of suit/referee jersey
   if (
     ["suit", "suit2", "referee"].includes(face.jersey.id) &&
     info.name == "body"
@@ -479,11 +519,13 @@ const drawFeature = (
   let insertPosition: "afterbegin" | "beforeend" = info.placeBeginning
     ? "afterbegin"
     : "beforeend";
-  // let whichChild: 'firstChild' | 'lastChild' = insertPosition == "beforebegin" ? 'firstChild' : 'lastChild';
 
   for (let i = 0; i < info.positions.length; i++) {
-    svg.insertAdjacentHTML(insertPosition, addWrapper(featureSVGString));
-    let childElement = calcChildElement(svg, insertPosition) as SVGSVGElement;
+    svg.insertAdjacentHTML(
+      insertPosition,
+      addWrapper(featureSVGString, info.name),
+    );
+    let childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
 
     const position = info.positions[i];
 
@@ -507,8 +549,8 @@ const drawFeature = (
       let shiftDirection = i == 1 ? 1 : -1;
       if (info.shiftWithEyes) {
         // @ts-ignore
-        position[0] += shiftDirection * face.eye.distance;
-        position[1] += -1 * face.eye.height;
+        position[0] += shiftDirection * (face.eye.distance || 0);
+        position[1] += -1 * (face.eye.height || 0);
         // position[1] += 1 * 50 * (1 - fatScale(face.height));
       }
 
@@ -542,6 +584,7 @@ const drawFeature = (
       childElement.setAttribute("opacity", String(feature.opacity));
     }
 
+    // For stroke editability, mostly face lines that are configurable
     if (feature.hasOwnProperty("strokeWidthModifier")) {
       scaleStrokeWidthAndChildren(
         childElement,
@@ -563,18 +606,18 @@ const drawFeature = (
     }
   }
 
-  let childElement = calcChildElement(svg, insertPosition) as SVGSVGElement;
+  let childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
 
   if (
     info.scaleFatness &&
     info.positions.length === 1 &&
     info.positions[0] === null
   ) {
-    // TODO - scale Height as well, make it move down
     // @ts-ignore
     scaleCentered(childElement, fatScale(face.fatness), 1);
   }
 
+  // Mostly just for glasses
   if (info.positions.length === 1 && info.shiftWithEyes) {
     // @ts-ignore
     addTransform(
@@ -608,7 +651,7 @@ export const display = (
   svg.setAttribute("viewBox", "0 0 400 600");
   svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
 
-  svg.insertAdjacentHTML("beforeend", addWrapper(""));
+  svg.insertAdjacentHTML("beforeend", addWrapper("", "wrapper"));
   let insideSVG = svg.firstChild as SVGSVGElement;
 
   // Needs to be in the DOM here so getBBox will work
@@ -716,15 +759,31 @@ export const display = (
     },
   ];
 
-  for (const info of featureInfos) {
-    drawFeature(insideSVG, face, info);
+  paper.setup(document.createElement("canvas"));
+  let baseFace;
 
+  for (const info of featureInfos) {
+    const feature = face[info.name];
+    if (!feature.id || feature.id === "none" || feature.id === "") {
+      continue;
+    }
+    drawFeature(insideSVG, face, info);
+    let svgIndex = svgsIndex[info.name].indexOf(feature.id);
+    let metadata = svgsMetadata[info.name][svgIndex];
+
+    // Set base SVG project after head is added
+    if (info.name == "head") {
+      baseFace = paper.project.importSVG(insideSVG);
+    }
+
+    if (metadata.clip) {
+      clipToParent(insideSVG, baseFace, "beforeend");
+    }
+
+    // After we add hair (which is last feature on face), add outer stroke to wrap entire face
     if (info.name == "hair") {
       let outerStroke = getOuterStroke(insideSVG);
-      insideSVG.insertAdjacentHTML(
-        "beforeend",
-        outerStroke.exportSVG({ asString: true }),
-      );
+      insideSVG.insertAdjacentHTML("beforeend", outerStroke);
     }
   }
 
