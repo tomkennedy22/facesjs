@@ -74,6 +74,10 @@ type GallerySectionConfigSvgs = GallerySectionConfigBase & {
     key: string;
     selectedValue: boolean;
   };
+  mirror?: {
+    key: string;
+    selectedValue: boolean;
+  };
 };
 
 export type GallerySectionConfig =

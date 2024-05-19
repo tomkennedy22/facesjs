@@ -113,6 +113,7 @@ const FeatureSelector = ({
 
   if (gallerySectionConfig.selectionType === "svgs") {
     const flip = gallerySectionConfig.flip;
+    const mirror = gallerySectionConfig.mirror;
 
     return (
       <div key={sectionIndex} className="w-full max-w-md flex gap-4">
@@ -157,6 +158,23 @@ const FeatureSelector = ({
             }}
           >
             Flip
+          </Switch>
+        ) : null}
+        {mirror ? (
+          <Switch
+            isSelected={mirror.selectedValue}
+            onValueChange={(chosenValue) => {
+              inputOnChange({
+                chosenValue,
+                faceConfig,
+                key: mirror.key,
+                overrideList: [],
+                sectionIndex,
+                stateStoreProps,
+              });
+            }}
+          >
+            Mirror
           </Switch>
         ) : null}
       </div>

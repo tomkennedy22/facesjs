@@ -8,6 +8,7 @@ export type Gender = "male" | "female";
 
 export type Feature =
   | "accessories"
+  | "blemish"
   | "body"
   | "ear"
   | "eye"
@@ -38,6 +39,7 @@ export type FeatureInfo = {
   opaqueLines?: boolean;
   placeBeginning?: boolean;
   flip?: boolean;
+  mirror?: boolean;
   size?: number;
   strokeWidthModifier?: number;
   strokeColor?: string;

@@ -8,6 +8,15 @@ export const genders = {
     headband: "both",
     none: "both",
   },
+  blemish: {
+    none: "both",
+    "eye-scar-left": "male",
+    "eye-scar-right": "male",
+    "chin-mole": "both",
+    "cheek-mole": "both",
+    "chin-mole-left": "both",
+    "cheek-mole-left": "both",
+  },
   body: {
     body: "both",
     body2: "both",

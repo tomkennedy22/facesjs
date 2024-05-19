@@ -43,6 +43,9 @@ const gallerySectionInfos: (Pick<
         flip?: {
           key: string;
         };
+        mirror?: {
+          key: string;
+        };
       }
   ))[] = [
   {
@@ -362,7 +365,24 @@ const gallerySectionInfos: (Pick<
     text: "Accessories Style",
     selectionType: "svgs",
   },
-
+  {
+    key: "blemish.id",
+    text: "Blemish",
+    selectionType: "svgs",
+    // flip: { key: "blemish.flip" },
+    // mirror: { key: "blemish.mirror" },
+  },
+  // {
+  //   key: "blemish.angle",
+  //   text: "Blemish Angle",
+  //   selectionType: "range",
+  //   renderOptions: {
+  //     rangeConfig: {
+  //       min: -90,
+  //       max: 90,
+  //     },
+  //   },
+  // },
   {
     key: "jersey.id",
     text: "Jersey Style",
@@ -431,11 +451,19 @@ const gallerySectionConfigList: GallerySectionConfig[] =
           }
         : undefined;
 
+      const mirror = gallerySectionConfig.mirror
+        ? {
+            ...gallerySectionConfig.mirror,
+            selectedValue: false,
+          }
+        : undefined;
+
       return {
         ...gallerySectionConfig,
         randomizeEnabled: true,
         selectedValue: "???",
         flip,
+        mirror,
       };
     }
   });
@@ -464,6 +492,10 @@ const applyValuesToGallerySectionConfigList = (
 
     if (row.selectionType === "svgs" && row.flip) {
       row.flip.selectedValue = getFromDict(face, row.flip.key);
+    }
+
+    if (row.selectionType === "svgs" && row.mirror) {
+      row.mirror.selectedValue = getFromDict(face, row.mirror.key);
     }
   }
 };

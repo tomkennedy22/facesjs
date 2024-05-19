@@ -8,6 +8,15 @@ export const svgMetadata = {
     headband: { gender: "both", occurance: 1, clip: false },
     none: { gender: "both", occurance: 1, clip: false },
   },
+  blemish: {
+    none: { gender: "both", occurance: 10, clip: false },
+    "eye-scar-left": { gender: "male", occurance: 1, clip: false },
+    "eye-scar-right": { gender: "male", occurance: 1, clip: false },
+    "chin-mole": { gender: "both", occurance: 1, clip: false },
+    "cheek-mole": { gender: "both", occurance: 1, clip: false },
+    "chin-mole-left": { gender: "both", occurance: 1, clip: false },
+    "cheek-mole-left": { gender: "both", occurance: 1, clip: false },
+  },
   body: {
     body: { gender: "both", occurance: 1, clip: false },
     body2: { gender: "both", occurance: 1, clip: false },

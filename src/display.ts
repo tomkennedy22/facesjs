@@ -281,6 +281,15 @@ const rotateCentered = (element: SVGGraphicsElement, angle: number) => {
   addTransform(element, `rotate(${angle} ${cx} ${cy})`);
 };
 
+// const mirrorElement = (element: SVGGraphicsElement) => {
+
+//   const bbox = element.getBBox();
+//   const middleX = bbox.x + bbox.width / 2;
+//   const distanceFromMiddle = middleX - 200;
+
+//   addTransform(element, `translate(${-1 * distanceFromMiddle * 2}, 0)`);
+// }
+
 const scaleStrokeWidthAndChildren = (
   element: SVGGraphicsElement,
   factor: number,
@@ -513,11 +522,21 @@ const drawFeature = (
     );
   }
 
+  if (featureSVGString.includes("$[skinAccent]")) {
+    let skinAccent = getSkinAccent(face.body.color);
+    featureSVGString = featureSVGString.replace(
+      /\$\[skinAccent\]/g,
+      skinAccent,
+    );
+  }
+
   featureSVGString = featureSVGString.replace(
     /\$\[shaveOpacity\]/g,
     // @ts-ignore
     feature.shaveOpacity || 0,
   );
+
+  featureSVGString = featureSVGString.replace(/\$\[headShave\]/g, "none");
 
   const bodySize = face.body.size !== undefined ? face.body.size : 1;
   let insertPosition: "afterbegin" | "beforeend" = info.placeBeginning
@@ -582,6 +601,11 @@ const drawFeature = (
     } else if (scale !== 1) {
       scaleCentered(childElement, scale, scale);
     }
+
+    // @ts-ignore
+    // if (feature.mirror) {
+    //   mirrorElement(childElement as SVGGraphicsElement);
+    // }
 
     if (feature.hasOwnProperty("opacity")) {
       // @ts-ignore
@@ -668,6 +692,10 @@ export const display = (
       name: "head",
       positions: [null], // Meaning it just gets placed into the SVG with no translation
       scaleFatness: true,
+    },
+    {
+      name: "blemish",
+      positions: [null],
     },
     {
       name: "eyeLine",

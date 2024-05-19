@@ -91,6 +91,12 @@ export const generate = (
           ? getID("hairBg", gender)
           : "none",
     },
+    blemish: {
+      id: getIDWithOccurance("blemish", gender),
+      // mirror: isFlipped(),
+      // flip: isFlipped(),
+      // angle: randomInt(-90, 90, true),
+    },
     body: {
       id: getID("body", gender),
       color: skinColor,
