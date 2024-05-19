@@ -113,11 +113,10 @@ export const generate = (
     },
     head: {
       id: getID("head", gender),
-      shave: `rgba(0,0,0,${
-        gender === "male" && Math.random() < 0.25
+      shaveOpacity:
+        gender === "male" && Math.random() < 0.35
           ? roundTwoDecimals(Math.random() / 5)
-          : 0
-      })`,
+          : 0,
     },
     eyeLine: {
       id: getID("eyeLine", gender),

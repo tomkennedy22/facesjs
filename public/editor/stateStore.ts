@@ -206,19 +206,14 @@ const gallerySectionInfos: (Pick<
     selectionType: "svgs",
   },
   {
-    key: "head.shave",
-    text: "Shave Style",
-    selectionType: "color",
-    colorFormat: "rgba",
+    key: "head.shaveOpacity",
+    text: "Shave Opacity",
+    selectionType: "range",
     renderOptions: {
-      valuesToRender: [
-        "rgba(0,0,0,0)",
-        "rgba(0,0,0,0.1)",
-        "rgba(0,0,0,0.2)",
-        "rgba(0,0,0,0.3)",
-        "rgba(0,0,0,0.4)",
-        "rgba(0,0,0,0.5)",
-      ],
+      rangeConfig: {
+        min: 0,
+        max: 0.4,
+      },
     },
   },
   {
