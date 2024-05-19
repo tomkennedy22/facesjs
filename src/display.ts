@@ -21,18 +21,21 @@ const clipToParent = (
   parentElement: any,
   insertLocation: "afterbegin" | "beforeend",
 ) => {
-  let childElement = getChildElement(fullSvg, insertLocation) as SVGSVGElement;
-  let clippedItem = paper.project.importSVG(childElement);
+  const childElement = getChildElement(
+    fullSvg,
+    insertLocation,
+  ) as SVGSVGElement;
+  const clippedItem = paper.project.importSVG(childElement);
   fullSvg.removeChild(childElement);
-  let baseShape = unitePaths(findPathItems(parentElement.clone()));
+  const baseShape = unitePaths(findPathItems(parentElement.clone()));
 
-  let smallChildren = findPathItems(clippedItem);
-  let childGroup = new paper.Group();
-  for (let child of smallChildren) {
+  const smallChildren = findPathItems(clippedItem);
+  const childGroup = new paper.Group();
+  for (const child of smallChildren) {
     child.stroke = null;
     child.strokeWidth = 0;
 
-    let intersection = baseShape.intersect(child);
+    const intersection = baseShape.intersect(child);
 
     intersection.fillColor = child.fillColor;
     intersection.strokeColor = child.strokeColor;
@@ -41,12 +44,12 @@ const clipToParent = (
     childGroup.addChild(intersection);
   }
 
-  let resultSVG = childGroup.exportSVG({ asString: true });
+  const resultSVG = childGroup.exportSVG({ asString: true });
   fullSvg.insertAdjacentHTML(insertLocation, resultSVG);
 
   childGroup.remove();
 
-  let newlyAddedElement = getChildElement(
+  const newlyAddedElement = getChildElement(
     fullSvg,
     insertLocation,
   ) as SVGSVGElement;
@@ -69,7 +72,7 @@ const findPathItems = (item: paper.Item): paper.PathItem[] => {
 };
 
 const unitePaths = (paths: paper.PathItem[]): paper.Path => {
-  let unitedPath = paths.reduce(
+  const unitedPath = paths.reduce(
     (result, path) => {
       if (result) {
         result = result.unite(path);
@@ -90,7 +93,7 @@ const getOuterStroke = (svgElement: SVGElement): string => {
   const importedItem = paper.project.importSVG(svgElement);
 
   const pathItems = findPathItems(importedItem);
-  for (let path of pathItems) {
+  for (const path of pathItems) {
     if (path.clockwise) {
       path.reverse();
     }
@@ -138,7 +141,7 @@ export const rgbToHsl = (rgb: RGB): HSL => {
   const min = Math.min(r, g, b);
   let h: number = (max + min) / 2;
   let s: number = (max + min) / 2;
-  let l: number = (max + min) / 2;
+  const l: number = (max + min) / 2;
 
   if (max === min) {
     h = 0;
@@ -166,7 +169,7 @@ export const rgbToHsl = (rgb: RGB): HSL => {
 // Convert HSL color to RGB
 export const hslToRgb = (hsl: HSL): RGB => {
   let r, g, b;
-  let { h, s, l } = hsl;
+  const { h, s, l } = hsl;
 
   if (s === 0) {
     r = g = b = l; // achromatic
@@ -239,13 +242,13 @@ const adjustShade = (color: string, amount: number): string => {
 };
 
 const getSkinAccent = (skinColor: string): string => {
-  let hsl = hexToHsl(skinColor);
+  const hsl = hexToHsl(skinColor);
   if (!hsl) {
     return skinColor;
   }
 
-  let modifiedLVals: number[] = [hsl.l * 0.9, hsl.l ** 2, (1 - hsl.l) * 1.25];
-  let lFurthestFromHalf: number[] = modifiedLVals.sort(
+  const modifiedLVals: number[] = [hsl.l * 0.9, hsl.l ** 2, (1 - hsl.l) * 1.25];
+  const lFurthestFromHalf: number[] = modifiedLVals.sort(
     (a, b) => Math.abs(b - 0.5) - Math.abs(a - 0.5),
   );
 
@@ -254,7 +257,7 @@ const getSkinAccent = (skinColor: string): string => {
 };
 
 const getHairAccent = (hairColor: string): string => {
-  let hsl = hexToHsl(hairColor);
+  const hsl = hexToHsl(hairColor);
   if (!hsl) {
     return hairColor;
   }
@@ -361,8 +364,8 @@ const scaleCentered = (element: SVGGraphicsElement, x: number, y: number) => {
 const scaleTopDown = (element: SVGGraphicsElement, scaleY: number) => {
   const bbox = element.getBBox();
 
-  let initialTotalY = bbox.height + bbox.y;
-  let newTotalY = bbox.height * scaleY + bbox.y;
+  const initialTotalY = bbox.height + bbox.y;
+  const newTotalY = bbox.height * scaleY + bbox.y;
 
   let ty = initialTotalY - newTotalY;
 
@@ -525,7 +528,7 @@ const drawFeature = (
   );
 
   if (featureSVGString.includes("$[hairAccent]")) {
-    let hairAccent = getHairAccent(face.hair.color as string) || "#000";
+    const hairAccent = getHairAccent(face.hair.color as string) || "#000";
     featureSVGString = featureSVGString.replace(
       /\$\[hairAccent\]/g,
       hairAccent,
@@ -533,7 +536,7 @@ const drawFeature = (
   }
 
   if (featureSVGString.includes("$[skinAccent]")) {
-    let skinAccent = getSkinAccent(face.body.color);
+    const skinAccent = getSkinAccent(face.body.color);
     featureSVGString = featureSVGString.replace(
       /\$\[skinAccent\]/g,
       skinAccent,
@@ -549,7 +552,7 @@ const drawFeature = (
   featureSVGString = featureSVGString.replace(/\$\[headShave\]/g, "none");
 
   const bodySize = face.body.size !== undefined ? face.body.size : 1;
-  let insertPosition: "afterbegin" | "beforeend" = info.placeBeginning
+  const insertPosition: "afterbegin" | "beforeend" = info.placeBeginning
     ? "afterbegin"
     : "beforeend";
 
@@ -558,9 +561,9 @@ const drawFeature = (
       insertPosition,
       addWrapper(featureSVGString, info.name),
     );
-    let childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
+    const childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
 
-    for (let granchildElement of childElement.children) {
+    for (const granchildElement of childElement.children) {
       addClassToElement(granchildElement as SVGGraphicsElement, feature.id);
     }
 
@@ -578,12 +581,12 @@ const drawFeature = (
 
       // @ts-ignore
       if (feature.distance) {
-        let move_direction = i == 1 ? 1 : -1;
+        const move_direction = i == 1 ? 1 : -1;
         // @ts-ignore
         position[0] += move_direction * feature.distance;
       }
 
-      let shiftDirection = i == 1 ? 1 : -1;
+      const shiftDirection = i == 1 ? 1 : -1;
       if (info.shiftWithEyes) {
         // @ts-ignore
         position[0] += shiftDirection * (face.eye.distance || 0);
@@ -658,7 +661,7 @@ const drawFeature = (
     }
   }
 
-  let childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
+  const childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
 
   if (
     info.scaleFatness &&
@@ -704,12 +707,12 @@ export const display = (
   svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
 
   svg.insertAdjacentHTML("beforeend", addWrapper("", "wrapper"));
-  let insideSVG = svg.firstChild as SVGSVGElement;
+  const insideSVG = svg.firstChild as SVGSVGElement;
 
   // Needs to be in the DOM here so getBBox will work
   containerElement.appendChild(svg);
 
-  let faceLineStrokeColor = getSkinAccent(face.body.color);
+  const faceLineStrokeColor = getSkinAccent(face.body.color);
 
   const featureInfos: FeatureInfo[] = [
     {
@@ -833,7 +836,7 @@ export const display = (
       continue;
     }
     drawFeature(insideSVG, face, info);
-    let metadata = svgsMetadata[info.name].find(
+    const metadata = svgsMetadata[info.name].find(
       (metadata) => metadata.name === feature.id,
     );
 
@@ -847,7 +850,7 @@ export const display = (
 
     // After we add hair (which is last feature on face), add outer stroke to wrap entire face
     if (info.name == "hair") {
-      let outerStroke = getOuterStroke(insideSVG);
+      const outerStroke = getOuterStroke(insideSVG);
       insideSVG.insertAdjacentHTML(
         "beforeend",
         addWrapper(outerStroke, "outerStroke"),

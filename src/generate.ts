@@ -79,7 +79,7 @@ export const generate = (
         ]);
   const gender = options && options.gender ? options.gender : "male";
 
-  let teamColors: TeamColors = pickRandom(jerseyColorOptions);
+  const teamColors: TeamColors = pickRandom(jerseyColorOptions);
   const eyeAngle = randomInt(-10, 15, true);
 
   const palette = (() => {

@@ -280,7 +280,7 @@ const FeatureSelector = ({
             // @ts-expect-error TS doesnt like conditional array vs string
             hasMultipleColors ? selectedVal[colorIndex] : selectedVal;
 
-          let presetColors = hasMultipleColors
+          const presetColors = hasMultipleColors
             ? gallerySectionConfig.renderOptions.valuesToRender.map(
                 (colorList: string[]) => colorList[colorIndex],
               )

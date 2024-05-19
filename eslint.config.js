@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 // Merge the contents of eslint-config-prettier into every
 export default tseslint.config(
   {
-    ignores: ["build/", "build-site/"],
+    ignores: ["build/", "build-site/", "public/build/"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
