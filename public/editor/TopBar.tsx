@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gender, Race } from "../../src/types";
+import { Gender, Race, Sport } from "../../src/types";
 import { useStateStore } from "./stateStore";
 import {
   House,
@@ -33,14 +33,25 @@ export const TopBar = () => {
     gallerySectionConfigList,
     shuffleGenderSettingObject,
     shuffleRaceSettingObject,
+    shuffleSportSettingObject,
     setShuffleGenderSettingObject,
     setShuffleRaceSettingObject,
+    setShuffleSportSettingObject,
   } = stateStore;
   const genders: Gender[] = ["male", "female"];
   const races: Race[] = ["white", "black", "brown", "asian"];
+  const sports: Sport[] = [
+    "basketball",
+    "football",
+    "hockey",
+    "baseball",
+    "suit",
+    "referee",
+  ];
 
   const [genderInvalidOptions, setGenderInvalidOptions] = useState(false);
   const [raceInvalidOptions, setRaceInvalidOptions] = useState(false);
+  const [sportInvalidOptions, setSportInvalidOptions] = useState(false);
 
   return (
     <div className="bg-slate-800 text-white flex justify-between w-full fixed z-50">
@@ -111,6 +122,29 @@ export const TopBar = () => {
                         return (
                           <Checkbox key={race} value={race}>
                             {capitalizeFirstLetter(race)}
+                          </Checkbox>
+                        );
+                      })}
+                    </CheckboxGroup>
+                    <CheckboxGroup
+                      label="Sport"
+                      isInvalid={sportInvalidOptions}
+                      value={shuffleSportSettingObject}
+                      style={{ maxWidth: "120px" }}
+                      errorMessage={
+                        sportInvalidOptions
+                          ? "Defaults will be used if no option selected"
+                          : null
+                      }
+                      onValueChange={(sportList) => {
+                        setShuffleSportSettingObject(sportList as Sport[]);
+                        setSportInvalidOptions(sportList.length < 1);
+                      }}
+                    >
+                      {sports.map((sport) => {
+                        return (
+                          <Checkbox key={sport} value={sport}>
+                            {capitalizeFirstLetter(sport)}
                           </Checkbox>
                         );
                       })}

@@ -11,8 +11,12 @@ export const shuffleEntireFace = (
   gallerySectionConfigList: GallerySectionConfig[],
   stateStore: CombinedState,
 ) => {
-  const { setFaceStore, shuffleGenderSettingObject, shuffleRaceSettingObject } =
-    stateStore;
+  const {
+    setFaceStore,
+    shuffleGenderSettingObject,
+    shuffleRaceSettingObject,
+    shuffleSportSettingObject,
+  } = stateStore;
   const faceConfigCopy: Overrides = deepCopy(faceConfig);
 
   const options: GenerateOptions = {};
@@ -47,6 +51,10 @@ export const shuffleEntireFace = (
     options.race = pickRandom(shuffleRaceSettingObject);
   }
 
+  if (shuffleSportSettingObject.length > 0) {
+    options.sport = pickRandom(shuffleSportSettingObject);
+  }
+
   // Special case for team colors
   if (!(faceConfigCopy as any).teamColors) {
     (faceConfigCopy as any).teamColors = pickRandom(jerseyColorOptions);
@@ -61,8 +69,12 @@ export const shuffleFeature = (
   stateStore: CombinedState,
   faceConfig: FaceConfig,
 ) => {
-  const { setFaceStore, shuffleGenderSettingObject, shuffleRaceSettingObject } =
-    stateStore;
+  const {
+    setFaceStore,
+    shuffleGenderSettingObject,
+    shuffleRaceSettingObject,
+    shuffleSportSettingObject,
+  } = stateStore;
 
   // Special case for team colors
   if (gallerySectionConfig.key === "teamColors") {
@@ -90,6 +102,9 @@ export const shuffleFeature = (
     }
     if (shuffleRaceSettingObject.length > 0) {
       options.race = pickRandom(shuffleRaceSettingObject);
+    }
+    if (shuffleSportSettingObject.length > 0) {
+      options.sport = pickRandom(shuffleSportSettingObject);
     }
 
     const newFace = generate(overrides, options);

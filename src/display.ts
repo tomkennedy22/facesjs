@@ -3,7 +3,7 @@ import svgs from "./svgs.js";
 import { FaceConfig, Overrides, RGB, HSL, HEX, FeatureInfo } from "./types";
 // @ts-ignore
 import paper from "paper-jsdom";
-import { svgsIndex, svgsMetadata } from "./svgs-index.js";
+import { svgsMetadata } from "./svgs-index.js";
 
 const getChildElement = (
   svg: SVGSVGElement,
@@ -833,14 +833,15 @@ export const display = (
       continue;
     }
     drawFeature(insideSVG, face, info);
-    let svgIndex = svgsIndex[info.name].indexOf(feature.id);
-    let metadata = svgsMetadata[info.name][svgIndex];
+    let metadata = svgsMetadata[info.name].find(
+      (metadata) => metadata.name === feature.id,
+    );
 
     if (info.name == "head") {
       baseFace = paper.project.importSVG(insideSVG);
     }
 
-    if (metadata.clip) {
+    if (metadata?.clip) {
       clipToParent(insideSVG, baseFace.clone(), "beforeend");
     }
 

@@ -59,22 +59,6 @@ const processSVGs = async () => {
     svgsIndex[key] = Object.keys(svgsIndex[key]);
   }
 
-  const svgsGenders = {
-    ...svgsIndex,
-  };
-  for (const key of Object.keys(svgsGenders)) {
-    const keyGenders = [];
-    for (const featureName of svgsGenders[key]) {
-      let gender = genders[key][featureName];
-      if (gender === undefined) {
-        console.log(`Unknown gender for ${key}/${featureName}`);
-        gender = "female";
-      }
-      keyGenders.push(gender);
-    }
-    svgsGenders[key] = keyGenders;
-  }
-
   const svgsMetadata = {
     ...svgsIndex,
   };
@@ -85,17 +69,19 @@ const processSVGs = async () => {
       metadata.name = featureName;
       if (metadata === undefined) {
         console.log(`Unknown metadata for ${key}/${featureName}`);
-        metadata = { gender: "both", occurance: 1 };
       }
+      metadata.gender = metadata.gender || "both";
+      metadata.sport = metadata.sport || "all";
+      metadata.occurance = metadata.occurance || 1;
+      metadata.clip = metadata.clip || false;
+
       keyMetadata.push(metadata);
     }
     svgsMetadata[key] = keyMetadata;
   }
   fs.writeFileSync(
     path.join(__dirname, "..", "..", "src", "svgs-index.ts"),
-    `${warning}\n\nexport const svgsIndex = ${JSON.stringify(
-      svgsIndex,
-    )};\n\nexport const svgsGenders = ${JSON.stringify(svgsGenders)};\n\nexport const svgsMetadata = ${JSON.stringify(svgsMetadata)};`,
+    `${warning}\n\nimport { SvgMetadata } from "./types"; \n\nexport const svgsMetadata: Record<string, SvgMetadata[]> = ${JSON.stringify(svgsMetadata)};`,
   );
 
   console.log(

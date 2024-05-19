@@ -5,6 +5,16 @@ export type Overrides = {
 };
 
 export type Gender = "male" | "female";
+export type GenderOption = Gender | "both";
+
+export type Sport =
+  | "basketball"
+  | "baseball"
+  | "football"
+  | "hockey"
+  | "suit"
+  | "referee"
+  | "all";
 
 export type Feature =
   | "accessories"
@@ -60,3 +70,11 @@ export type RGB = {
 };
 
 export type HEX = string;
+
+export type SvgMetadata = {
+  name: string;
+  gender: GenderOption;
+  sport: Sport[] | Sport;
+  occurance: number;
+  clip: boolean;
+};

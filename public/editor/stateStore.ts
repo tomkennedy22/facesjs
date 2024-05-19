@@ -7,7 +7,7 @@ import {
   distinctSkinColors,
   jerseyColorOptions,
 } from "./defaultColors";
-import { FaceConfig, Gender, Race } from "../../src/types";
+import { FaceConfig, Gender, Race, Sport } from "../../src/types";
 
 const gallerySectionInfos: (Pick<
   GallerySectionConfig,
@@ -560,6 +560,14 @@ const createGallerySlice: StateCreator<CombinedState, [], [], CombinedState> = (
 
   shuffleGenderSettingObject: ["male"],
   shuffleRaceSettingObject: ["white", "brown", "black", "asian"],
+  shuffleSportSettingObject: [
+    "basketball",
+    "football",
+    "hockey",
+    "baseball",
+    "suit",
+    "referee",
+  ],
 
   setShuffleGenderSettingObject: (options: Gender[]) =>
     set((state: CombinedState) => {
@@ -573,6 +581,13 @@ const createGallerySlice: StateCreator<CombinedState, [], [], CombinedState> = (
       return {
         ...state,
         shuffleRaceSettingObject: options,
+      };
+    }),
+  setShuffleSportSettingObject: (options: Sport[]) =>
+    set((state: CombinedState) => {
+      return {
+        ...state,
+        shuffleSportSettingObject: options,
       };
     }),
 });

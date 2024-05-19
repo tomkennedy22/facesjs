@@ -1,6 +1,6 @@
 import override from "../../src/override";
-import { svgsIndex } from "../../src/svgs-index";
-import { FaceConfig, Overrides } from "../../src/types";
+import { svgsMetadata } from "../../src/svgs-index";
+import { FaceConfig, Overrides, SvgMetadata } from "../../src/types";
 import { GallerySectionConfig, OverrideListItem } from "./types";
 import { deepCopy, doesStrLookLikeColor, luma, setToDict } from "./utils";
 
@@ -13,24 +13,24 @@ export const getOverrideListForItem = (
     if (gallerySectionConfig.key.includes("id")) {
       const featureName = gallerySectionConfig.key.split(".")[0];
 
-      const svgNames = [
-        ...(svgsIndex as Record<string, string[]>)[featureName],
+      const featureSvgMetadata = [
+        ...(svgsMetadata as Record<string, SvgMetadata[]>)[featureName],
       ];
-      svgNames.sort((a, b) => {
-        if (a === "none" || a === "bald") return -1;
-        if (b === "none" || b === "bald") return 1;
+      featureSvgMetadata.sort((a, b) => {
+        if (a.name === "none" || a.name === "bald") return -1;
+        if (b.name === "none" || b.name === "bald") return 1;
 
-        if (doesStrLookLikeColor(a) && doesStrLookLikeColor(b)) {
-          return luma(a) - luma(b);
+        if (doesStrLookLikeColor(a.name) && doesStrLookLikeColor(b.name)) {
+          return luma(a.name) - luma(b.name);
         }
 
         const regex = /^([a-zA-Z-]+)(\d*)$/;
-        const matchA = a.match(regex);
-        const matchB = b.match(regex);
+        const matchA = a.name.match(regex);
+        const matchB = b.name.match(regex);
 
-        const textA = matchA ? matchA[1] : a,
+        const textA = matchA ? matchA[1] : a.name,
           numA = matchA ? matchA[2] : "";
-        const textB = matchB ? matchB[1] : b,
+        const textB = matchB ? matchB[1] : b.name,
           numB = matchB ? matchB[2] : "";
 
         if (textA < textB) return -1;
@@ -46,11 +46,13 @@ export const getOverrideListForItem = (
         return 0;
       });
 
-      for (const svgName of svgNames) {
-        const overrides: Overrides = { [featureName]: { id: svgName } };
+      for (const svgMetadata of featureSvgMetadata) {
+        const overrides: Overrides = {
+          [featureName]: { id: svgMetadata.name },
+        };
         overrideList.push({
           override: overrides,
-          value: svgName,
+          value: svgMetadata.name,
         });
       }
     }

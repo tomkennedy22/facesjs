@@ -1,4 +1,4 @@
-import { FaceConfig, Gender, Overrides, Race } from "../../src";
+import { FaceConfig, Gender, Overrides, Race, Sport } from "../../src";
 
 export type GallerySize = "sm" | "md" | "lg";
 export type ColorFormat = "hex" | "rgba";
@@ -23,8 +23,10 @@ export type GalleryState = {
 
   shuffleGenderSettingObject: Gender[];
   shuffleRaceSettingObject: Race[];
+  shuffleSportSettingObject: Sport[];
   setShuffleGenderSettingObject: (options: Gender[]) => void;
   setShuffleRaceSettingObject: (options: Race[]) => void;
+  setShuffleSportSettingObject: (options: Sport[]) => void;
 };
 
 type GallerySectionConfigBase = {
