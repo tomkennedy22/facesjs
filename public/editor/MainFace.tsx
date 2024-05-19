@@ -4,6 +4,7 @@ import {
   UploadSimple,
   LinkSimple,
   CaretDown,
+  MagnifyingGlass,
 } from "@phosphor-icons/react";
 import {
   Button,
@@ -28,14 +29,17 @@ const copyStringToClipboard = async (str: string) => {
 
 const MainFaceActionBar = ({
   faceRef,
-  modalDisclosure,
+  uploadModalDisclosure,
+  compareModalDisclosure,
 }: {
   faceRef: RefObject<HTMLDivElement>;
-  modalDisclosure: ReturnType<typeof useDisclosure>;
+  uploadModalDisclosure: ReturnType<typeof useDisclosure>;
+  compareModalDisclosure: ReturnType<typeof useDisclosure>;
 }) => {
   const { faceConfig } = useStateStore();
 
-  const { onOpen } = modalDisclosure;
+  const { onOpen: onUploadOpen } = uploadModalDisclosure;
+  const { onOpen: onCompareOpen } = compareModalDisclosure;
 
   const dropdownConfig = [
     {
@@ -97,7 +101,12 @@ const MainFaceActionBar = ({
     {
       groupName: "Upload",
       groupIcon: <UploadSimple size={24} />,
-      baseAction: onOpen,
+      baseAction: onUploadOpen,
+    },
+    {
+      groupName: "Compare",
+      groupIcon: <MagnifyingGlass size={24} />,
+      baseAction: onCompareOpen,
     },
   ];
 
@@ -157,9 +166,11 @@ const MainFaceActionBar = ({
 };
 
 export const MainFace = ({
-  modalDisclosure,
+  uploadModalDisclosure,
+  compareModalDisclosure,
 }: {
-  modalDisclosure: ReturnType<typeof useDisclosure>;
+  uploadModalDisclosure: ReturnType<typeof useDisclosure>;
+  compareModalDisclosure: ReturnType<typeof useDisclosure>;
 }) => {
   const { faceConfig } = useStateStore();
   const ref = useRef<HTMLDivElement>(null);
@@ -167,7 +178,11 @@ export const MainFace = ({
   return (
     <div className="border-5 border-slate-800 rounded-lg shadow-medium">
       <Face face={faceConfig} style={{ width: "400px" }} ref={ref} />
-      <MainFaceActionBar modalDisclosure={modalDisclosure} faceRef={ref} />
+      <MainFaceActionBar
+        uploadModalDisclosure={uploadModalDisclosure}
+        compareModalDisclosure={compareModalDisclosure}
+        faceRef={ref}
+      />
     </div>
   );
 };
