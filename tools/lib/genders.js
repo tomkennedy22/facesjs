@@ -370,6 +370,7 @@ export const genders = {
     none: "both",
   },
   earring: {
+    none: "both",
     "earring-hanging-diamond": "female",
     "earring-silver-diamond": "female",
     "earring-silver": "female",

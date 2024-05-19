@@ -632,6 +632,16 @@ const drawFeature = (
       // @ts-ignore
       translate(childElement, distance, 0, "left", "top");
     }
+
+    if (info.name === "earring") {
+      translate(
+        childElement as SVGGraphicsElement,
+        0,
+        +face.ear.size,
+        "left",
+        "top",
+      );
+    }
   }
 
   let childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
@@ -763,6 +773,15 @@ export const display = (
       name: "accessories",
       positions: [null],
       scaleFatness: true,
+    },
+    {
+      name: "earring",
+      positions: [
+        [50, 360] as [number, number],
+        [350, 360] as [number, number],
+      ],
+      scaleFatness: true,
+      placeBeginning: true,
     },
     {
       name: "ear",

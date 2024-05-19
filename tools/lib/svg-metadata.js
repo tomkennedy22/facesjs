@@ -30,6 +30,7 @@ export const svgMetadata = {
     ear3: { gender: "male", occurance: 1, clip: false },
   },
   earring: {
+    none: { gender: "both", occurance: 1, clip: false },
     "earring-hanging-diamond": { gender: "female", occurance: 1, clip: false },
     "earring-silver-diamond": { gender: "female", occurance: 1, clip: false },
     "earring-silver": { gender: "female", occurance: 1, clip: false },

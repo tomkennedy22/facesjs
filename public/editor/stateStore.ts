@@ -366,6 +366,11 @@ const gallerySectionInfos: (Pick<
     selectionType: "svgs",
   },
   {
+    key: "earring.id",
+    text: "Earring Style",
+    selectionType: "svgs",
+  },
+  {
     key: "blemish.id",
     text: "Blemish",
     selectionType: "svgs",

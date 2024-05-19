@@ -113,7 +113,7 @@ export const generate = (
     },
     earring: {
       id:
-        (gender === "female" ? 1 : 0.5) * Math.random() > 0.25
+        (gender === "female" ? 1 : 0.1) * Math.random() > 0.25
           ? getID("earring", gender)
           : "none",
     },
