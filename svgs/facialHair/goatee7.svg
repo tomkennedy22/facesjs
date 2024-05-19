@@ -1,3 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
-	<path id="goatee7" class="shp0" d="M250 485C240 505 220 505 200 505C180 505 160 505 150 485C155 480 160 495 200 495C240 495 245 480 250 485Z" fill="$[hairColor]"/>
+<svg width="100%" height="100%" viewBox="0 0 400 600" version="1.1" xmlns="http://www.w3.org/2000/svg" >
+    <g transform="matrix(1,0,0,1,0,-5)">
+        <path id="goatee7" d="M250,485C240,505 220,505 200,505C180,505 160,505 150,485C155,480 160,495 200,495C237.282,495 244.159,481.969 248.97,484.247C249.32,484.413 249.66,484.66 250,485Z" fill="$[hairColor]"/>
+    </g>
 </svg>

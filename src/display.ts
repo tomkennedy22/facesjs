@@ -50,7 +50,7 @@ const clipToParent = (
     fullSvg,
     insertLocation,
   ) as SVGSVGElement;
-  newlyAddedElement.setAttribute("class", "clipToParent Output");
+  addClassToElement(newlyAddedElement, "clipToParent");
 };
 
 const findPathItems = (item: paper.Item): paper.PathItem[] => {
@@ -90,12 +90,15 @@ const getOuterStroke = (svgElement: SVGElement): string => {
   const importedItem = paper.project.importSVG(svgElement);
 
   const pathItems = findPathItems(importedItem);
-
-  // Unite all the path items into a single path
+  for (let path of pathItems) {
+    if (path.clockwise) {
+      path.reverse();
+    }
+  }
   const unitedPath = unitePaths(pathItems);
 
   unitedPath.strokeColor = new paper.Color("black");
-  unitedPath.strokeWidth = 5;
+  unitedPath.strokeWidth = 6;
   unitedPath.fillColor = new paper.Color("transparent");
 
   // Remove the imported item and its children from the project
@@ -260,6 +263,13 @@ const getHairAccent = (hairColor: string): string => {
   } else {
     return adjustShade(hairColor, 0.5);
   }
+};
+
+const addClassToElement = (element: SVGGraphicsElement, className: string) => {
+  const existingClass = element.getAttribute("class");
+  const existingClassSet = new Set(existingClass?.split(" ") || []);
+  existingClassSet.add(className);
+  element.setAttribute("class", Array.from(existingClassSet).join(" "));
 };
 
 const addWrapper = (svgString: string, objectTitle?: string) =>
@@ -550,6 +560,10 @@ const drawFeature = (
     );
     let childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
 
+    for (let granchildElement of childElement.children) {
+      addClassToElement(granchildElement as SVGGraphicsElement, feature.id);
+    }
+
     const position = info.positions[i];
 
     if (position !== null) {
@@ -822,12 +836,10 @@ export const display = (
     let svgIndex = svgsIndex[info.name].indexOf(feature.id);
     let metadata = svgsMetadata[info.name][svgIndex];
 
-    // Set base SVG project after head is added
     if (info.name == "head") {
       baseFace = paper.project.importSVG(insideSVG);
     }
 
-    console.log({ metadata, info, feature });
     if (metadata.clip) {
       clipToParent(insideSVG, baseFace.clone(), "beforeend");
     }
@@ -835,7 +847,10 @@ export const display = (
     // After we add hair (which is last feature on face), add outer stroke to wrap entire face
     if (info.name == "hair") {
       let outerStroke = getOuterStroke(insideSVG);
-      insideSVG.insertAdjacentHTML("beforeend", outerStroke);
+      insideSVG.insertAdjacentHTML(
+        "beforeend",
+        addWrapper(outerStroke, "outerStroke"),
+      );
     }
   }
 

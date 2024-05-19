@@ -20,18 +20,19 @@ const getID = (type: Feature, gender: Gender): string => {
 };
 
 const getIDWithOccurance = (type: Feature, gender: Gender): string => {
-  const validIDsWeightMap: [any, number][] = svgsIndex[type]
+  const validIDsWeightMap: [string, number][] = svgsMetadata[type]
     .filter((_id, index) => {
       return (
         svgsMetadata[type][index].gender === "both" ||
-        svgsGenders[type][index] === gender
+        svgsMetadata[type][index].gender === gender
       );
     })
-    .map((_id, index) => {
-      return [svgsIndex[type][index], svgsMetadata[type][index].occurance];
+    .map((metadata) => {
+      return [metadata.name, metadata.occurance];
     });
 
-  return weightedRandomChoice(validIDsWeightMap);
+  const chosenID = weightedRandomChoice(validIDsWeightMap);
+  return chosenID;
 };
 
 const roundTwoDecimals = (x: number) => Math.round(x * 100) / 100;
@@ -57,6 +58,7 @@ export const generate = (
   })();
 
   const gender = options && options.gender ? options.gender : "male";
+  console.log("generate", { gender, options, overrides, playerRace });
 
   let teamColors: TeamColors = pickRandom(jerseyColorOptions);
   const eyeAngle = randomInt(-10, 15, true);
