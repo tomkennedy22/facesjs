@@ -1,9 +1,17 @@
 import override from "./override.js";
 import svgs from "./svgs.js";
-import { FaceConfig, Overrides, RGB, HSL, HEX, FeatureInfo } from "./types";
+import {
+  FaceConfig,
+  Overrides,
+  RGB,
+  HSL,
+  HEX,
+  FeatureInfo,
+  SvgMetadata,
+} from "./types";
 // @ts-ignore
 import paper from "paper-jsdom";
-import { svgsMetadata } from "./svgs-index.js";
+import { legacyNameMap, svgsMetadata } from "./svgs-index.js";
 
 const getChildElement = (
   svg: SVGSVGElement,
@@ -418,8 +426,9 @@ const drawFeature = (
   svg: SVGSVGElement,
   face: FaceConfig,
   info: FeatureInfo,
+  feature: any,
+  metadata: SvgMetadata,
 ) => {
-  const feature = face[info.name];
   if (!feature || !svgs[info.name]) {
     return;
   }
@@ -602,7 +611,7 @@ const drawFeature = (
       );
     }
 
-    if (feature.hasOwnProperty("angle")) {
+    if (feature.hasOwnProperty("angle") && !metadata.noAngle) {
       // @ts-ignore
       rotateCentered(childElement, (i === 0 ? 1 : -1) * feature.angle);
     }
@@ -854,13 +863,19 @@ export const display = (
 
   for (const info of featureInfos) {
     const feature = face[info.name];
-    if (!feature.id || feature.id === "none" || feature.id === "") {
+    if (!feature || !feature.id || feature.id === "none" || feature.id === "") {
       continue;
     }
-    drawFeature(insideSVG, face, info);
+
+    if (legacyNameMap[feature.id]) {
+      feature.id = legacyNameMap[feature.id];
+    }
+
     const metadata = svgsMetadata[info.name].find(
       (metadata) => metadata.name === feature.id,
-    );
+    ) as SvgMetadata;
+
+    drawFeature(insideSVG, face, info, feature, metadata);
 
     if (info.name == "head") {
       baseFace = paper.project.importSVG(insideSVG);

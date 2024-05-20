@@ -77,4 +77,5 @@ export type SvgMetadata = {
   sport: Sport[] | Sport;
   occurance: number;
   clip: boolean;
+  noAngle: boolean;
 };

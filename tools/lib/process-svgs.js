@@ -59,6 +59,8 @@ const processSVGs = async () => {
     svgsIndex[key] = Object.keys(svgsIndex[key]);
   }
 
+  const legacyNameMap = {};
+
   const svgsMetadata = {
     ...svgsIndex,
   };
@@ -74,6 +76,12 @@ const processSVGs = async () => {
       metadata.sport = metadata.sport || "all";
       metadata.occurance = metadata.occurance || 1;
       metadata.clip = metadata.clip || false;
+      metadata.noAngle = metadata.noAngle || false;
+
+      if (metadata.legacyName) {
+        legacyNameMap[metadata.legacyName] = featureName;
+        delete metadata.legacyName;
+      }
 
       keyMetadata.push(metadata);
     }
@@ -81,7 +89,11 @@ const processSVGs = async () => {
   }
   fs.writeFileSync(
     path.join(__dirname, "..", "..", "src", "svgs-index.ts"),
-    `${warning}\n\nimport { SvgMetadata } from "./types"; \n\nexport const svgsMetadata: Record<string, SvgMetadata[]> = ${JSON.stringify(svgsMetadata)};`,
+    `${warning}
+    \n\nimport { SvgMetadata } from "./types"; 
+    \n\nexport const svgsMetadata: Record<string, SvgMetadata[]> = ${JSON.stringify(svgsMetadata, null, 2)};
+    \n\nexport const legacyNameMap: Record<string, string> = ${JSON.stringify(legacyNameMap, null, 2)};
+    `,
   );
 
   console.log(
