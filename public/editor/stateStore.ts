@@ -5,6 +5,7 @@ import { generateRangeFromStep, getFromDict, roundTwoDecimals } from "./utils";
 import {
   distinctHairColors,
   distinctSkinColors,
+  distinctEyeColors,
   jerseyColorOptions,
 } from "./defaultColors";
 import { FaceConfig, Gender, Race, Sport } from "../../src/types";
@@ -122,6 +123,15 @@ const gallerySectionInfos: (Pick<
     key: "eye.id",
     text: "Eye Shape",
     selectionType: "svgs",
+  },
+  {
+    key: "eye.color",
+    text: "Eye Color",
+    selectionType: "color",
+    colorFormat: "hex",
+    renderOptions: {
+      valuesToRender: distinctEyeColors,
+    },
   },
   {
     key: "eye.size",

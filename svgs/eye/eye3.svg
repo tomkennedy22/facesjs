@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 400 600" style="enable-background:new 0 0 400 600;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:none;stroke:#000000;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}
-	.st1{fill:#FFFFFF;stroke:#000000;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}
-	.st2{stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}
-</style>
-<g id="eye3">
-	<path id="Shape_7" class="st0" d="M265,360c-13.8,0-25-11.2-25-25c0-13.8,11.2-25,25-25c13.8,0,25,11.2,25,25
-		C290,348.8,278.8,360,265,360z"/>
-	<path id="Shape_7_00000150791970886920477020000014707071456811372191_" class="st1" d="M265,360c-13.8,0-25-11.2-25-25
-		c0-5,0-5,0-5h50c0,0,0,0,0,5C290,348.8,278.8,360,265,360z"/>
-	<path id="Shape_7_00000075853275481624699570000017816741889252536984_" class="st1" d="M0,0"/>
-	<path id="Shape_7_00000061471288081546717510000004247543703584063625_" class="st2" d="M265,330c-10,0-10,15,0,15S275,330,265,330
-		z"/>
-</g>
+<svg width="100%" height="100%" viewBox="0 0 400 600" >
+    <g id="eye3">
+        <path id="Shape_7" d="M265,360C251.2,360 240,348.8 240,335C240,321.2 251.2,310 265,310C278.8,310 290,321.2 290,335C290,348.8 278.8,360 265,360Z" style="fill:none;fill-rule:nonzero;stroke:#000;stroke-width:5px;"/>
+        <path id="Shape_7_00000150791970886920477020000014707071456811372191_" d="M265,360C251.2,360 240,348.8 240,335L240,330L290,330L290,335C290,348.8 278.8,360 265,360Z" style="fill:#fff;fill-rule:nonzero;"/>
+        <path d="M276.565,332.5L253.435,332.5C250.533,339.864 254.388,350 265,350C275.612,350 279.467,339.864 276.565,332.5Z" fill="$[eyeColor]"/>
+        <path d="M260.662,332.5C256.721,335.92 258.167,344 265,344C271.833,344 273.279,335.92 269.338,332.5L260.662,332.5Z"/>
+        <path d="M240,332.5L240,327.5L290,327.5C290.992,327.5 291.848,328.077 292.252,328.914C292.404,328.991 292.499,329.314 292.5,329.995C292.5,329.997 292.5,330.005 292.5,330.005L292.5,335C292.5,350.18 280.18,362.5 265,362.5C249.82,362.5 237.5,350.18 237.5,335L237.5,330.005L240,332.5ZM287.5,332.5L242.5,332.5L242.5,335C242.5,347.42 252.58,357.5 265,357.5C277.42,357.5 287.5,347.42 287.5,335L287.5,332.5Z"/>
+    </g>
 </svg>

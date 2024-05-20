@@ -37,22 +37,22 @@ export const colors = {
       "#e9c67b",
       "#D7BF91",
     ],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
+    eyes: ["#a5b8d2", "#5c3937", "#634E34", "#2e536f", "#497665"],
   },
   asian: {
     // https://imgur.com/a/GrBuWYw
     skin: ["#fedac7", "#f0c5a3", "#eab687"],
     hair: ["#272421", "#0f0902"],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
+    eyes: ["#5c3937", "#634E34"],
   },
   brown: {
     skin: ["#bb876f", "#aa816f", "#a67358"],
     hair: ["#272421", "#1c1008"],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
+    eyes: ["#5c3937", "#634E34"],
   },
   black: {
     skin: ["#ad6453", "#74453d", "#5c3937"],
     hair: ["#272421"],
-    eyes: ["#b3d1ff", "#a5b8d2", "#8a7d5e"],
+    eyes: ["#5c3937", "#634E34"],
   },
 };

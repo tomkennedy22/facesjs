@@ -61,7 +61,7 @@ const CompareFaceGrid = ({
       {featureAOverrideList.flatMap((featureAOverride, indexA) =>
         featureBOverrideList.map((featureBOverride, indexB) => {
           const faceConfigCopy = deepCopy(faceConfig);
-          let faceOverride = {};
+          const faceOverride = {};
           setToDict(faceOverride, featureA, featureAOverride.value);
           setToDict(faceOverride, featureB, featureBOverride.value);
           override(faceConfigCopy, faceOverride);

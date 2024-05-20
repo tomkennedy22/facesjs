@@ -172,7 +172,7 @@ export const generate = (
       id: Math.random() < 0.5 ? getID("facialHair", false, { gender }) : "none",
     },
     eye: {
-      id: getID("eye", false, { gender }),
+      id: getID("eye", true, { gender }),
       angle: eyeAngle,
       color: eyeColor,
       size: roundTwoDecimals(0.9 + Math.random() * 0.2),

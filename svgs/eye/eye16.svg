@@ -1,13 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 50" width="75" height="50">
-	<style>
-		tspan { white-space:pre }
-		.white { fill: #f5f3ee } 
-		.black { fill: #000000 } 
-		.blackLine { fill: none;stroke: #000000;stroke-width: 6 } 
-	</style>
-	<g id="eye">
-		<path id="white" class="white" d="M5 35L10 20C10 20 14.24 15 29.3 15C59.3 15 65 20 65 20L70 35C70 35 62.92 35 40 35C17.08 35 5 35 5 35Z" />
-		<path id="black" class="black" d="M37.93 33.78C33.4 33.78 29.73 30.12 29.73 25.58C29.73 21.05 33.4 17.39 37.93 17.39C42.46 17.39 46.12 21.05 46.12 25.58C46.12 30.12 42.46 33.78 37.93 33.78Z" />
-		<path id="Shape 1" class="blackLine" d="M5 35C5 35 5 25 10 20C15 15 65 20 65 20L70 35" />
-	</g>
+<svg width="100%" height="100%" viewBox="0 0 75 50" version="1.1" >
+    <g id="eye">
+        <path id="white" d="M5,35L10,20C10,20 14.24,15 29.3,15C59.3,15 65,20 65,20L70,35L5,35Z" style="fill:#f5f3ee;fill-rule:nonzero;"/>
+        <path id="black" d="M37.94,34.509C32.965,34.509 28.934,30.489 28.934,25.503C28.934,20.528 32.965,16.509 37.94,16.509C42.915,16.509 46.934,20.528 46.934,25.503C46.934,30.489 42.915,34.509 37.94,34.509Z" fill="$[eyeColor]"/>
+        <path id="black1" d="M37.937,30.012C35.448,30.012 33.431,28.001 33.431,25.506C33.431,23.017 35.448,21.006 37.937,21.006C40.426,21.006 42.437,23.017 42.437,25.506C42.437,28.001 40.426,30.012 37.937,30.012Z" style="fill-rule:nonzero;"/>
+        <path id="Shape-1" d="M5,35C5,35 5,25 10,20C15,15 65,20 65,20L70,35" style="fill:none;fill-rule:nonzero;stroke:#000;stroke-width:6px;"/>
+    </g>
 </svg>

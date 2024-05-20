@@ -37,3 +37,9 @@ export const distinctHairColors = distinct(
     .map((c) => c.hair)
     .flat(),
 );
+
+export const distinctEyeColors = distinct(
+  Object.values(colors)
+    .map((c) => c.eyes)
+    .flat(),
+);

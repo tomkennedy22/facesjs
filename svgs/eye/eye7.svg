@@ -1,11 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 21" width="78" height="21">
-	<style>
-		tspan { white-space:pre }
-		.shp0 { fill: #ffffff;stroke: #000000;stroke-width: 5 } 
-		.shp1 { fill: #000000;stroke: #000000;stroke-width: 5 } 
-	</style>
-	<g id="eye7">
-		<path id="White" class="shp0" d="M74 18L69 3L4 3L9 18L74 18Z" />
-		<path id="Shape 9" class="shp1" d="M38.5 18C34.35 18 31 14.65 31 10.5C31 6.35 34.35 3 38.5 3C42.65 3 46 6.35 46 10.5C46 14.65 42.65 18 38.5 18Z" />
-	</g>
+<svg width="100%" height="100%" viewBox="0 0 78 21" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g id="eye7">
+        <path id="White" d="M74,18L69,3L4,3L9,18L74,18Z" style="fill:#fff;fill-rule:nonzero;"/>
+        <path d="M30.69,18.255C28.717,16.268 27.5,13.529 27.5,10.5C27.5,6.976 29.147,3.845 31.716,1.833L45.284,1.833C47.853,3.845 49.5,6.976 49.5,10.5C49.5,13.529 48.283,16.268 46.31,18.255L30.69,18.255Z" fill="$[eyeColor]"/>
+        <path id="Shape-9" d="M38.5,16C35.457,16 33,13.543 33,10.5C33,7.457 35.457,5 38.5,5C41.543,5 44,7.457 44,10.5C44,13.543 41.543,16 38.5,16Z" style="fill-rule:nonzero;"/>
+        <path d="M7.198,20.5L0.531,0.5L70.802,0.5L77.469,20.5L7.198,20.5ZM70.531,15.5L67.198,5.5L7.469,5.5L10.802,15.5L70.531,15.5Z"/>
+    </g>
 </svg>
