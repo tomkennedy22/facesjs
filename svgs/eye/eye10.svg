@@ -1,7 +1,9 @@
-<svg width="100%" height="100%" viewBox="0 0 400 600" version="1.1">
+
+<svg width="100%" height="100%" viewBox="0 0 400 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
     <g id="eye3">
         <path id="path1251" d="M259.01,349.54C245.144,349.142 234.301,343.451 234.301,330.49C245,312.427 274.686,312.132 285.55,330.215C289.965,342.423 273.943,349.968 259.01,349.54Z" style="fill:#fff;fill-rule:nonzero;stroke:#000;stroke-width:5px;"/>
         <path id="path1255" d="M259.552,322.177C245.552,322.177 245.552,343.177 259.552,343.177C273.552,343.177 273.552,322.177 259.552,322.177Z" fill="$[eyeColor]"/>
-        <path id="path12551" d="M259.552,327.427C252.552,327.427 252.552,337.927 259.552,337.927C266.552,337.927 266.552,327.427 259.552,327.427Z" style="fill-rule:nonzero;"/>
+        <path id="path12551"  d="M259.552,327.427C252.552,327.427 252.552,337.927 259.552,337.927C266.552,337.927 266.552,327.427 259.552,327.427Z" fill="black"/>
+        <path id="path12552" class="reflection"  d="M259.552,329.427C255.218,329.427 255.218,335.927 259.552,335.927C263.885,335.927 263.885,329.427 259.552,329.427Z" fill="black"/>
     </g>
 </svg>

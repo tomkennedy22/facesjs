@@ -415,6 +415,60 @@ const translate = (
   addTransform(element, `translate(${x - cx} ${y - cy})`);
 };
 
+const addEyeReflections = (svg: SVGSVGElement) => {
+  function findEyes(
+    element: Element,
+    eyes: SVGGraphicsElement[] = [],
+  ): SVGGraphicsElement[] {
+    for (const child of element.children) {
+      if (child.tagName === "g" && child.classList.contains("eye")) {
+        eyes.push(child as SVGGraphicsElement);
+      }
+      // Recursively search within this child
+      findEyes(child, eyes);
+    }
+    return eyes;
+  }
+
+  function findReflection(element: Element): SVGGraphicsElement | null {
+    if (element.classList.contains("reflection")) {
+      return element as SVGGraphicsElement;
+    }
+    for (const child of element.children) {
+      const foundEye = findReflection(child);
+      if (foundEye) {
+        return foundEye;
+      }
+    }
+    return null;
+  }
+
+  const eyes = findEyes(svg);
+  console.log("eyes", { eyes });
+  let moveDirection = 0;
+  for (const eye of eyes) {
+    const reflection = findReflection(eye);
+    console.log("reflection", { reflection });
+    if (!reflection) {
+      continue;
+    }
+
+    reflection.setAttribute("fill", "white");
+    // reflection.setAttribute("opacity", "0.5");
+    addTransform(
+      reflection,
+      `translate(${6 * (moveDirection % 2 ? 1 : -1)},-6)`,
+    );
+    console.log(
+      "translate",
+      `translate(${5 * (moveDirection % 2 ? 1 : -1)},-5)`,
+    );
+
+    // eye.appendChild(reflection);
+    moveDirection += 1;
+  }
+};
+
 // Defines the range of fat/skinny, relative to the original width of the default head.
 const fatScale = (fatness: number) => 0.8 + 0.2 * fatness;
 
@@ -505,16 +559,21 @@ const drawFeature = (
   // @ts-ignore
   if (feature.shave) {
     // @ts-ignore
-    featureSVGString = featureSVGString.replace("$[faceShave]", feature.shave);
+    featureSVGString = featureSVGString.replace(
+      /\$\[faceShave\]/g,
+      feature.shave,
+    );
   }
 
   // @ts-ignore
   if (feature.shave) {
-    // @ts-ignore
-    featureSVGString = featureSVGString.replace("$[headShave]", "none");
+    featureSVGString = featureSVGString.replace(/\$\[headShave\]/g, "none");
   }
 
-  featureSVGString = featureSVGString.replace("$[skinColor]", face.body.color);
+  featureSVGString = featureSVGString.replace(
+    /\$\[skinColor\]/g,
+    face.body.color,
+  );
   featureSVGString = featureSVGString.replace(
     /\$\[hairColor\]/g,
     face.hair.color,
@@ -572,8 +631,8 @@ const drawFeature = (
     );
     const childElement = getChildElement(svg, insertPosition) as SVGSVGElement;
 
-    for (const granchildElement of childElement.children) {
-      addClassToElement(granchildElement as SVGGraphicsElement, feature.id);
+    for (const grandchildElement of childElement.children) {
+      addClassToElement(grandchildElement as SVGGraphicsElement, feature.id);
     }
 
     const position = info.positions[i];
@@ -657,28 +716,6 @@ const drawFeature = (
       const distance = (78 - 47) * (1 - face.fatness);
       // @ts-ignore
       translate(childElement, distance, 0, "left", "top");
-    }
-
-    if (info.name === "eye") {
-      for (const granchildElement of childElement.children) {
-        if (granchildElement.getAttribute("fill") === `$[eyeReflection${i}]`) {
-          granchildElement.setAttribute("fill", "white");
-          if (i === 1) {
-            const parentTransform =
-              childElement.getAttribute("transform") || "";
-            const rotateRegex = /rotate\(([^)]+)\)/;
-            const match = parentTransform.match(rotateRegex);
-            const parentRotate = match ? match[0] : null;
-            // @ts-ignore
-            addTransform(granchildElement as SVGGraphicsElement, parentRotate);
-          }
-        } else if (
-          granchildElement.getAttribute("fill") ===
-          `$[eyeReflection${(i + 1) % 2}]`
-        ) {
-          granchildElement.setAttribute("fill", "none");
-        }
-      }
     }
 
     if (info.name === "earring") {
@@ -894,6 +931,8 @@ export const display = (
       );
     }
   }
+
+  addEyeReflections(insideSVG);
 
   if (face.height !== undefined) {
     scaleTopDown(insideSVG, heightScale(face.height));
