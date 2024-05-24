@@ -69,6 +69,8 @@ export type RGB = {
   b: number;
 };
 
+export type RGBA = RGB & { a: number };
+
 export type HEX = string;
 
 export type SvgMetadata = {

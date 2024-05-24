@@ -8,6 +8,7 @@ import {
   HEX,
   FeatureInfo,
   SvgMetadata,
+  RGBA,
 } from "./types";
 // @ts-ignore
 import paper from "paper-jsdom";
@@ -24,28 +25,70 @@ const getChildElement = (
   }
 };
 
-const clipToParent = (
-  fullSvg: SVGSVGElement,
-  parentElement: paper.Path,
-  insertLocation: "afterbegin" | "beforeend",
+const swapSiblings = (svg: SVGSVGElement) => {
+  const shadowDOMElement = getChildElement(svg, "afterbegin") as SVGSVGElement;
+  const previousSibling = shadowDOMElement.nextSibling as SVGSVGElement;
+  if (previousSibling) {
+    svg.insertBefore(shadowDOMElement, previousSibling.nextElementSibling);
+  }
+};
+
+const addFaceShadowToBody = (
+  face: FaceConfig,
+  insideSVG: SVGSVGElement,
+  faceOuterStrokePath: paper.Path,
 ) => {
-  const childElement = getChildElement(
-    fullSvg,
-    insertLocation,
+  const bodyGroup = getChildElement(insideSVG, "afterbegin");
+  const bodySVG = paper.project.importSVG(bodyGroup);
+  const bodyColor = face.body.color;
+  const faceShadowPath = getShadowFromStroke(
+    faceOuterStrokePath,
+    bodyColor,
+    // "black",
+  );
+  const faceShadowSVGString: string = paperPathToSVGString(faceShadowPath);
+  insideSVG.insertAdjacentHTML(
+    "afterbegin",
+    addWrapper(faceShadowSVGString, "shadow"),
+  );
+
+  const shadowSvgElement = getChildElementByClass(
+    insideSVG,
+    "shadow",
   ) as SVGSVGElement;
+
+  clipToParent(
+    shadowSvgElement,
+    bodySVG.clone(),
+    insideSVG,
+    "afterbegin",
+    "faceShadow",
+  );
+  swapSiblings(insideSVG);
+};
+
+const clipToParent = (
+  childElement: SVGSVGElement,
+  parentElement: paper.Path,
+  fullSvg: SVGSVGElement,
+  insertLocation: "afterbegin" | "beforeend",
+  className: string,
+) => {
   const clippedItem = paper.project.importSVG(childElement);
-  fullSvg.removeChild(childElement);
+  childElement.remove();
   const baseShape = unitePaths(findPathItems(parentElement.clone()));
 
   const smallChildren = findPathItems(clippedItem);
+  console.log("smallChildren", { smallChildren });
   const childGroup = new paper.Group();
   for (const child of smallChildren) {
-    child.stroke = null;
-    child.strokeWidth = 0;
+    // child.stroke = null;
+    // child.strokeWidth = 0;
 
     const intersection = baseShape.intersect(child);
 
     intersection.fillColor = child.fillColor;
+    intersection.stroke = child.stroke;
     intersection.strokeColor = child.strokeColor;
     intersection.strokeWidth = child.strokeWidth;
     intersection.opacity = child.opacity;
@@ -62,7 +105,7 @@ const clipToParent = (
     fullSvg,
     insertLocation,
   ) as SVGSVGElement;
-  addClassToElement(newlyAddedElement, "clipToParent");
+  addClassToElement(newlyAddedElement, `${className}-clipToParent`);
 };
 
 const findPathItems = (item: paper.Item): paper.PathItem[] => {
@@ -112,6 +155,9 @@ const getOuterStroke = (svgElement: SVGElement): paper.Path => {
   unitedPath.strokeColor = new paper.Color("black");
   unitedPath.strokeWidth = 6;
   unitedPath.fillColor = new paper.Color("transparent");
+  unitedPath.miterLimit = 1;
+
+  console.log("getOuterStroke", { importedItem, unitedPath, pathItems });
 
   // Remove the imported item and its children from the project
   importedItem.remove();
@@ -132,9 +178,15 @@ const getShadowFromStroke = (
   const shadowPath = svgElement.clone();
   shadowPath.strokeWidth = 0;
   shadowPath.fillColor = new paper.Color(getSkinAccent(bodyColor));
-  shadowPath.opacity = 0.33;
+  shadowPath.opacity = 0.25;
   shadowPath.width *= 0.75;
   shadowPath.position.y += 10;
+  console.log("shadowPath", {
+    shadowPath,
+    bodyColor,
+    svgElement,
+    shadowPathFill: shadowPath.fillColor,
+  });
   return shadowPath;
 };
 
@@ -284,6 +336,32 @@ const getSkinAccent = (skinColor: string): string => {
   return rgbToHex(hslToRgb(hsl));
 };
 
+const rgbaToRgbaString = (rgba: RGB | null, opacity: number): string => {
+  if (!rgba) {
+    return "rgba(0, 0, 0, 0)";
+  }
+  return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${opacity})`;
+};
+
+const rgbaStringToRgba = (rgbaString: string): RGBA => {
+  const rgba = rgbaString.split("(")[1].split(")")[0].split(",");
+  return {
+    r: parseInt(rgba[0]),
+    g: parseInt(rgba[1]),
+    b: parseInt(rgba[2]),
+    a: parseInt(rgba[3]),
+  };
+};
+
+const getSkinShadow = (skinColor: string): string => {
+  const skinColorRgba = rgbaToRgbaString(
+    hexToRgb(getSkinAccent(skinColor)),
+    0.3,
+  );
+
+  return skinColorRgba;
+};
+
 const getHairAccent = (hairColor: string): string => {
   const hsl = hexToHsl(hairColor);
   if (!hsl) {
@@ -294,6 +372,18 @@ const getHairAccent = (hairColor: string): string => {
   } else {
     return adjustShade(hairColor, 0.5);
   }
+};
+
+const getChildElementByClass = (
+  parentElement: SVGSVGElement,
+  className: string,
+): SVGSVGElement | null => {
+  for (const child of parentElement.children) {
+    if (child.getAttribute("class") === className) {
+      return child as SVGSVGElement;
+    }
+  }
+  return null;
 };
 
 const addClassToElement = (element: SVGGraphicsElement, className: string) => {
@@ -376,7 +466,7 @@ const scaleCentered = (element: SVGGraphicsElement, x: number, y: number) => {
   const tx = (cx * (1 - x)) / x;
   const ty = (cy * (1 - y)) / y;
 
-  addTransform(element, `scale(${x} ${y}) translate(${tx} ${ty})`);
+  addTransform(element, `scale(${x} ${y}) translate(${tx || 0} ${ty || 0})`);
 
   // Keep apparent stroke width constant, similar to how Raphael does it (I think)
   if (
@@ -403,7 +493,7 @@ const scaleTopDown = (element: SVGGraphicsElement, scaleY: number) => {
     ty *= 1.5;
   }
 
-  addTransform(element, `scale(${1} ${scaleY}) translate(0 ${ty})`);
+  addTransform(element, `scale(${1} ${scaleY}) translate(0 ${ty || 0})`);
 };
 
 // Translate element such that its center is at (x, y). Specifying xAlign and yAlign can instead make (x, y) the left/right and top/bottom.
@@ -432,7 +522,7 @@ const translate = (
     cy = bbox.y + bbox.height / 2;
   }
 
-  addTransform(element, `translate(${x - cx} ${y - cy})`);
+  addTransform(element, `translate(${x - cx || 0} ${y - cy || 0})`);
 };
 
 // Defines the range of fat/skinny, relative to the original width of the default head.
@@ -572,11 +662,28 @@ const drawFeature = (
     );
   }
 
-  featureSVGString = featureSVGString.replace(
-    /\$\[shaveOpacity\]/g,
-    // @ts-ignore
-    feature.shaveOpacity || 0,
-  );
+  if (featureSVGString.includes("$[skinShadow]")) {
+    const skinShadow = getSkinShadow(face.body.color);
+    featureSVGString = featureSVGString.replace(
+      /\$\[skinShadow\]/g,
+      skinShadow,
+    );
+  }
+
+  if (featureSVGString.includes("$[shaveOpacity]")) {
+    let opacity;
+    // Backwards compatibility
+    if (feature.shave) {
+      opacity = rgbaStringToRgba(feature.shave).a;
+    } else {
+      opacity = feature.shaveOpacity;
+    }
+
+    featureSVGString = featureSVGString.replace(
+      /\$\[shaveOpacity\]/g,
+      opacity || 0,
+    );
+  }
 
   featureSVGString = featureSVGString.replace(/\$\[headShave\]/g, "none");
 
@@ -625,8 +732,8 @@ const drawFeature = (
 
       translate(
         childElement as SVGGraphicsElement,
-        position[0],
-        position[1],
+        position[0] || 0,
+        position[1] || 0,
         xAlign,
       );
     }
@@ -676,7 +783,7 @@ const drawFeature = (
       // Scale individual feature relative to the edge of the head. If fatness is 1, then there are 47 pixels on each side. If fatness is 0, then there are 78 pixels on each side.
       const distance = (78 - 47) * (1 - face.fatness);
       // @ts-ignore
-      translate(childElement, distance, 0, "left", "top");
+      translate(childElement, distance || 0, 0, "left", "top");
     }
 
     if (info.name === "eye") {
@@ -705,7 +812,7 @@ const drawFeature = (
       translate(
         childElement as SVGGraphicsElement,
         0,
-        +face.ear.size,
+        +face.ear.size || 0,
         "left",
         "top",
       );
@@ -728,7 +835,7 @@ const drawFeature = (
     // @ts-ignore
     addTransform(
       childElement as SVGGraphicsElement,
-      `translate(0, ${-1 * face.eye.height})`,
+      `translate(0, ${-1 * face.eye.height || 0})`,
     );
   }
 };
@@ -818,13 +925,13 @@ export const display = (
       positions: [[200, 370]],
     },
     {
+      name: "mouth",
+      positions: [[200, 440]],
+    },
+    {
       name: "facialHair",
       positions: [null],
       scaleFatness: true,
-    },
-    {
-      name: "mouth",
-      positions: [[200, 440]],
     },
     {
       name: "hair",
@@ -861,14 +968,13 @@ export const display = (
       placeBeginning: true,
     },
     {
-      name: "jersey",
+      name: "body",
       positions: [null],
       placeBeginning: true,
     },
     {
-      name: "body",
+      name: "jersey",
       positions: [null],
-      placeBeginning: true,
     },
     {
       name: "hairBg",
@@ -879,7 +985,7 @@ export const display = (
   ];
 
   paper.setup(document.createElement("canvas"));
-  let baseFace: paper.Project;
+  let clipParent: paper.Project;
   let faceOuterStrokePath: paper.Path;
 
   for (const info of featureInfos) {
@@ -898,51 +1004,80 @@ export const display = (
 
     drawFeature(insideSVG, face, info, feature, metadata);
 
-    if (info.name == "head") {
-      baseFace = paper.project.importSVG(insideSVG);
+    if (info.name === "head") {
+      clipParent = paper.project.importSVG(insideSVG);
+    } else if (info.name === "body") {
+      clipParent = paper.project.importSVG(
+        getChildElement(insideSVG, "afterbegin"),
+      );
     }
 
     if (metadata?.clip) {
-      clipToParent(insideSVG, baseFace.clone(), "beforeend");
+      if (info.name === "jersey") {
+        const bodySVGElement = getChildElementByClass(insideSVG, "body");
+        let jerseySVGElement = getChildElementByClass(insideSVG, "jersey");
+
+        if (!bodySVGElement || !jerseySVGElement) {
+          continue;
+        }
+
+        const bodyStrokePath = getOuterStroke(bodySVGElement);
+        clipToParent(
+          jerseySVGElement,
+          bodyStrokePath,
+          insideSVG,
+          "afterbegin",
+          "jersey",
+        );
+
+        const bodyStrokeSVGString = paperPathToSVGString(bodyStrokePath);
+        insideSVG.insertAdjacentHTML(
+          "afterbegin",
+          addWrapper(bodyStrokeSVGString, "bodyStroke"),
+        );
+
+        jerseySVGElement = getChildElementByClass(
+          insideSVG,
+          "jersey-clipToParent",
+        );
+
+        if (!jerseySVGElement) {
+          continue;
+        }
+
+        jerseySVGElement.remove();
+        insideSVG.insertAdjacentElement("afterbegin", jerseySVGElement);
+
+        bodySVGElement.remove();
+        insideSVG.insertAdjacentElement("afterbegin", bodySVGElement);
+      } else {
+        const childElement = getChildElement(
+          insideSVG,
+          "beforeend",
+        ) as SVGSVGElement;
+        clipToParent(
+          childElement,
+          clipParent.clone(),
+          insideSVG,
+          "beforeend",
+          info.name,
+        );
+      }
     }
 
     // After we add hair (which is last feature on face), add outer stroke to wrap entire face
     if (info.name == "hair") {
       faceOuterStrokePath = getOuterStroke(insideSVG);
-      let faceOuterStrokeSVGString = paperPathToSVGString(faceOuterStrokePath);
+      const faceOuterStrokeSVGString =
+        paperPathToSVGString(faceOuterStrokePath);
       insideSVG.insertAdjacentHTML(
         "beforeend",
         addWrapper(faceOuterStrokeSVGString, "outerStroke"),
       );
     }
 
-    // Add shadow to body after face is made
     if (info.name === "body") {
-      const bodyGroup = getChildElement(insideSVG, "afterbegin");
-      const bodySVG = paper.project.importSVG(bodyGroup);
-      const bodyColor = face.body.color;
-      const faceShadowPath = getShadowFromStroke(
-        faceOuterStrokePath,
-        bodyColor,
-      );
-      const faceShadowSVGString: string = paperPathToSVGString(faceShadowPath);
-      insideSVG.insertAdjacentHTML(
-        "afterbegin",
-        addWrapper(faceShadowSVGString, "shadow"),
-      );
-
-      clipToParent(insideSVG, bodySVG.clone(), "afterbegin");
-      const shadowDOMElement = getChildElement(
-        insideSVG,
-        "afterbegin",
-      ) as SVGSVGElement;
-      const previousSibling = shadowDOMElement.nextSibling as SVGSVGElement;
-      if (previousSibling) {
-        insideSVG.insertBefore(
-          shadowDOMElement,
-          previousSibling.nextElementSibling,
-        );
-      }
+      addFaceShadowToBody(face, insideSVG, faceOuterStrokePath);
     }
   }
 
