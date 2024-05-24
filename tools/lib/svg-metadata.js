@@ -203,11 +203,27 @@ export const svgMetadata = {
   },
   glasses: {
     facemask: { gender: "both", sport: ["basketball"] },
-    "glasses1-primary": { gender: "both" },
-    "glasses1-secondary": { gender: "both" },
-    "glasses2-black": { gender: "both" },
-    "glasses2-primary": { gender: "both" },
-    "glasses2-secondary": { gender: "both" },
+    "glasses1-primary": {
+      gender: "both",
+      sport: ["hockey", "basketball", "baseball", "football"],
+    },
+    "glasses1-secondary": {
+      gender: "both",
+      sport: ["hockey", "basketball", "baseball", "football"],
+    },
+    "glasses2-black": {
+      gender: "both",
+      sport: ["hockey", "basketball", "baseball", "football"],
+    },
+    "glasses2-primary": {
+      gender: "both",
+      sport: ["hockey", "basketball", "baseball", "football"],
+    },
+    "glasses2-secondary": {
+      gender: "both",
+      sport: ["hockey", "basketball", "baseball", "football"],
+    },
+    specs: { gender: "both", sport: "suit" },
     none: { gender: "both" },
   },
   hair: {
