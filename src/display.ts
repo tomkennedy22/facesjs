@@ -26,7 +26,7 @@ const getChildElement = (
 
 const clipToParent = (
   fullSvg: SVGSVGElement,
-  parentElement: any,
+  parentElement: paper.Path,
   insertLocation: "afterbegin" | "beforeend",
 ) => {
   const childElement = getChildElement(
@@ -48,6 +48,7 @@ const clipToParent = (
     intersection.fillColor = child.fillColor;
     intersection.strokeColor = child.strokeColor;
     intersection.strokeWidth = child.strokeWidth;
+    intersection.opacity = child.opacity;
 
     childGroup.addChild(intersection);
   }
@@ -95,7 +96,7 @@ const unitePaths = (paths: paper.PathItem[]): paper.Path => {
   return unitedPath;
 };
 
-const getOuterStroke = (svgElement: SVGElement): string => {
+const getOuterStroke = (svgElement: SVGElement): paper.Path => {
   paper.setup(document.createElement("canvas"));
 
   const importedItem = paper.project.importSVG(svgElement);
@@ -115,7 +116,26 @@ const getOuterStroke = (svgElement: SVGElement): string => {
   // Remove the imported item and its children from the project
   importedItem.remove();
 
-  return unitedPath.exportSVG({ asString: true });
+  return unitedPath;
+};
+
+const paperPathToSVGString = (path: paper.Path): string => {
+  const svg = path.exportSVG({ asString: true });
+  path.remove();
+  return svg;
+};
+
+const getShadowFromStroke = (
+  svgElement: paper.Path,
+  bodyColor: string,
+): paper.Path => {
+  const shadowPath = svgElement.clone();
+  shadowPath.strokeWidth = 0;
+  shadowPath.fillColor = new paper.Color(getSkinAccent(bodyColor));
+  shadowPath.opacity = 0.33;
+  shadowPath.width *= 0.75;
+  shadowPath.position.y += 10;
+  return shadowPath;
 };
 
 // Convert hex color to RGB
@@ -859,7 +879,8 @@ export const display = (
   ];
 
   paper.setup(document.createElement("canvas"));
-  let baseFace;
+  let baseFace: paper.Project;
+  let faceOuterStrokePath: paper.Path;
 
   for (const info of featureInfos) {
     const feature = face[info.name];
@@ -887,11 +908,41 @@ export const display = (
 
     // After we add hair (which is last feature on face), add outer stroke to wrap entire face
     if (info.name == "hair") {
-      const outerStroke = getOuterStroke(insideSVG);
+      faceOuterStrokePath = getOuterStroke(insideSVG);
+      let faceOuterStrokeSVGString = paperPathToSVGString(faceOuterStrokePath);
       insideSVG.insertAdjacentHTML(
         "beforeend",
-        addWrapper(outerStroke, "outerStroke"),
+        addWrapper(faceOuterStrokeSVGString, "outerStroke"),
       );
+    }
+
+    // Add shadow to body after face is made
+    if (info.name === "body") {
+      const bodyGroup = getChildElement(insideSVG, "afterbegin");
+      const bodySVG = paper.project.importSVG(bodyGroup);
+      const bodyColor = face.body.color;
+      const faceShadowPath = getShadowFromStroke(
+        faceOuterStrokePath,
+        bodyColor,
+      );
+      const faceShadowSVGString: string = paperPathToSVGString(faceShadowPath);
+      insideSVG.insertAdjacentHTML(
+        "afterbegin",
+        addWrapper(faceShadowSVGString, "shadow"),
+      );
+
+      clipToParent(insideSVG, bodySVG.clone(), "afterbegin");
+      const shadowDOMElement = getChildElement(
+        insideSVG,
+        "afterbegin",
+      ) as SVGSVGElement;
+      const previousSibling = shadowDOMElement.nextSibling as SVGSVGElement;
+      if (previousSibling) {
+        insideSVG.insertBefore(
+          shadowDOMElement,
+          previousSibling.nextElementSibling,
+        );
+      }
     }
   }
 
