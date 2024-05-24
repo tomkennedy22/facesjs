@@ -1,400 +1,23 @@
-import override from "./override.js";
-import svgs from "./svgs.js";
-import {
-  FaceConfig,
-  Overrides,
-  RGB,
-  HSL,
-  HEX,
-  FeatureInfo,
-  SvgMetadata,
-  RGBA,
-} from "./types";
 // @ts-ignore
 import paper from "paper-jsdom";
-import { legacyNameMap, svgsMetadata } from "./svgs-index.js";
-
-const getChildElement = (
-  svg: SVGSVGElement,
-  insertPosition: "afterbegin" | "beforeend",
-) => {
-  if (insertPosition === "afterbegin") {
-    return svg.firstChild;
-  } else {
-    return svg.lastChild;
-  }
-};
-
-const swapSiblings = (svg: SVGSVGElement) => {
-  const shadowDOMElement = getChildElement(svg, "afterbegin") as SVGSVGElement;
-  const previousSibling = shadowDOMElement.nextSibling as SVGSVGElement;
-  if (previousSibling) {
-    svg.insertBefore(shadowDOMElement, previousSibling.nextElementSibling);
-  }
-};
-
-const addFaceShadowToBody = (
-  face: FaceConfig,
-  insideSVG: SVGSVGElement,
-  faceOuterStrokePath: paper.Path,
-) => {
-  const bodyGroup = getChildElement(insideSVG, "afterbegin");
-  const bodySVG = paper.project.importSVG(bodyGroup);
-  const bodyColor = face.body.color;
-  const faceShadowPath = getShadowFromStroke(
-    faceOuterStrokePath,
-    bodyColor,
-    // "black",
-  );
-  const faceShadowSVGString: string = paperPathToSVGString(faceShadowPath);
-  insideSVG.insertAdjacentHTML(
-    "afterbegin",
-    addWrapper(faceShadowSVGString, "shadow"),
-  );
-
-  const shadowSvgElement = getChildElementByClass(
-    insideSVG,
-    "shadow",
-  ) as SVGSVGElement;
-
-  clipToParent(
-    shadowSvgElement,
-    bodySVG.clone(),
-    insideSVG,
-    "afterbegin",
-    "faceShadow",
-  );
-  swapSiblings(insideSVG);
-};
-
-const clipToParent = (
-  childElement: SVGSVGElement,
-  parentElement: paper.Path,
-  fullSvg: SVGSVGElement,
-  insertLocation: "afterbegin" | "beforeend",
-  className: string,
-) => {
-  const clippedItem = paper.project.importSVG(childElement);
-  childElement.remove();
-  const baseShape = unitePaths(findPathItems(parentElement.clone()));
-
-  const smallChildren = findPathItems(clippedItem);
-  console.log("smallChildren", { smallChildren });
-  const childGroup = new paper.Group();
-  for (const child of smallChildren) {
-    // child.stroke = null;
-    // child.strokeWidth = 0;
-
-    const intersection = baseShape.intersect(child);
-
-    intersection.fillColor = child.fillColor;
-    intersection.stroke = child.stroke;
-    intersection.strokeColor = child.strokeColor;
-    intersection.strokeWidth = child.strokeWidth;
-    intersection.opacity = child.opacity;
-
-    childGroup.addChild(intersection);
-  }
-
-  const resultSVG = childGroup.exportSVG({ asString: true });
-  fullSvg.insertAdjacentHTML(insertLocation, resultSVG);
-
-  childGroup.remove();
-
-  const newlyAddedElement = getChildElement(
-    fullSvg,
-    insertLocation,
-  ) as SVGSVGElement;
-  addClassToElement(newlyAddedElement, `${className}-clipToParent`);
-};
-
-const findPathItems = (item: paper.Item): paper.PathItem[] => {
-  let paths: paper.PathItem[] = [];
-
-  if (item.children) {
-    item.children.forEach((child: any) => {
-      paths = paths.concat(findPathItems(child));
-    });
-  }
-  if (item instanceof paper.PathItem) {
-    paths.push(item);
-  }
-
-  return paths;
-};
-
-const unitePaths = (paths: paper.PathItem[]): paper.Path => {
-  const unitedPath = paths.reduce(
-    (result, path) => {
-      if (result) {
-        result = result.unite(path);
-      } else {
-        result = path;
-      }
-      return result;
-    },
-    null as paper.PathItem | null,
-  ) as paper.Path;
-
-  return unitedPath;
-};
-
-const getOuterStroke = (svgElement: SVGElement): paper.Path => {
-  paper.setup(document.createElement("canvas"));
-
-  const importedItem = paper.project.importSVG(svgElement);
-
-  const pathItems = findPathItems(importedItem);
-  for (const path of pathItems) {
-    if (path.clockwise) {
-      path.reverse();
-    }
-  }
-  const unitedPath = unitePaths(pathItems);
-
-  unitedPath.strokeColor = new paper.Color("black");
-  unitedPath.strokeWidth = 6;
-  unitedPath.fillColor = new paper.Color("transparent");
-  unitedPath.miterLimit = 1;
-
-  console.log("getOuterStroke", { importedItem, unitedPath, pathItems });
-
-  // Remove the imported item and its children from the project
-  importedItem.remove();
-
-  return unitedPath;
-};
-
-const paperPathToSVGString = (path: paper.Path): string => {
-  const svg = path.exportSVG({ asString: true });
-  path.remove();
-  return svg;
-};
-
-const getShadowFromStroke = (
-  svgElement: paper.Path,
-  bodyColor: string,
-): paper.Path => {
-  const shadowPath = svgElement.clone();
-  shadowPath.strokeWidth = 0;
-  shadowPath.fillColor = new paper.Color(getSkinAccent(bodyColor));
-  shadowPath.opacity = 0.25;
-  shadowPath.width *= 0.75;
-  shadowPath.position.y += 10;
-  console.log("shadowPath", {
-    shadowPath,
-    bodyColor,
-    svgElement,
-    shadowPathFill: shadowPath.fillColor,
-  });
-  return shadowPath;
-};
-
-// Convert hex color to RGB
-export const hexToRgb = (hex: HEX): RGB | null => {
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, (r, g, b) => r + r + g + g + b + b);
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
-};
-
-// Convert RGB color to hex
-export const rgbToHex = (rgb: RGB): HEX => {
-  return (
-    "#" +
-    ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)
-  );
-};
-
-// Convert RGB color to HSL
-export const rgbToHsl = (rgb: RGB): HSL => {
-  let { r, g, b } = rgb;
-  (r /= 255), (g /= 255), (b /= 255);
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h: number = (max + min) / 2;
-  let s: number = (max + min) / 2;
-  const l: number = (max + min) / 2;
-
-  if (max === min) {
-    h = 0;
-    s = 0;
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-    if (r === max) {
-      h = (g - b) / d + (g < b ? 6 : 0);
-    }
-    if (g === max) {
-      h = (b - r) / d + 2;
-    }
-    if (b === max) {
-      h = (r - g) / d + 4;
-    }
-
-    h = h / 6;
-  }
-
-  return { h, s, l };
-};
-
-// Convert HSL color to RGB
-export const hslToRgb = (hsl: HSL): RGB => {
-  let r, g, b;
-  const { h, s, l } = hsl;
-
-  if (s === 0) {
-    r = g = b = l; // achromatic
-  } else {
-    const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return {
-    r: Math.round(r * 255),
-    g: Math.round(g * 255),
-    b: Math.round(b * 255),
-  };
-};
-
-export const hexToHsl = (hex: HEX): HSL | null => {
-  const rgb = hexToRgb(hex);
-  if (!rgb) {
-    return null;
-  }
-  return rgbToHsl(rgb);
-};
-
-export const randomGaussian = (min: number, max: number) => {
-  let u = 0,
-    v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-
-  num = num / 10.0 + 0.5;
-  if (num > 1 || num < 0) num = randomGaussian(min, max);
-  num *= max - min;
-  num += min;
-  return num;
-};
-
-const adjustShade = (color: string, amount: number): string => {
-  // Convert hex to RGB
-  const rgb: RGB | null = hexToRgb(color);
-
-  // Convert RGB to HSL
-  if (!rgb) {
-    return color;
-  }
-  const hsl: HSL = rgbToHsl(rgb);
-
-  // Adjust the lightness
-  const adjustedLightness = Math.max(0, Math.min(1, hsl.l * amount));
-
-  // Convert HSL back to RGB
-  const adjustedRgb = hslToRgb({ ...hsl, l: adjustedLightness });
-
-  // Convert RGB back to hex
-  const adjustedHex = rgbToHex(adjustedRgb);
-
-  return adjustedHex;
-};
-
-const getSkinAccent = (skinColor: string): string => {
-  const hsl = hexToHsl(skinColor);
-  if (!hsl) {
-    return skinColor;
-  }
-
-  const modifiedLVals: number[] = [hsl.l * 0.9, hsl.l ** 2, (1 - hsl.l) * 1.25];
-  const lFurthestFromHalf: number[] = modifiedLVals.sort(
-    (a, b) => Math.abs(b - 0.5) - Math.abs(a - 0.5),
-  );
-
-  hsl.l = lFurthestFromHalf[0] as number;
-  return rgbToHex(hslToRgb(hsl));
-};
-
-const rgbaToRgbaString = (rgba: RGB | null, opacity: number): string => {
-  if (!rgba) {
-    return "rgba(0, 0, 0, 0)";
-  }
-  return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${opacity})`;
-};
-
-const rgbaStringToRgba = (rgbaString: string): RGBA => {
-  const rgba = rgbaString.split("(")[1].split(")")[0].split(",");
-  return {
-    r: parseInt(rgba[0]),
-    g: parseInt(rgba[1]),
-    b: parseInt(rgba[2]),
-    a: parseInt(rgba[3]),
-  };
-};
-
-const getSkinShadow = (skinColor: string): string => {
-  const skinColorRgba = rgbaToRgbaString(
-    hexToRgb(getSkinAccent(skinColor)),
-    0.3,
-  );
-
-  return skinColorRgba;
-};
-
-const getHairAccent = (hairColor: string): string => {
-  const hsl = hexToHsl(hairColor);
-  if (!hsl) {
-    return hairColor;
-  }
-  if (hsl.l < 0.33) {
-    return adjustShade(hairColor, 2);
-  } else {
-    return adjustShade(hairColor, 0.5);
-  }
-};
-
-const getChildElementByClass = (
-  parentElement: SVGSVGElement,
-  className: string,
-): SVGSVGElement | null => {
-  for (const child of parentElement.children) {
-    if (child.getAttribute("class") === className) {
-      return child as SVGSVGElement;
-    }
-  }
-  return null;
-};
-
-const addClassToElement = (element: SVGGraphicsElement, className: string) => {
-  const existingClass = element.getAttribute("class");
-  const existingClassSet = new Set(existingClass?.split(" ") || []);
-  existingClassSet.add(className);
-  element.setAttribute("class", Array.from(existingClassSet).join(" "));
-};
-
-const addWrapper = (svgString: string, objectTitle?: string) =>
-  `<g class="${objectTitle}">${svgString}</g>`;
+import override from "./override";
+import svgs from "./svgs";
+import { FaceConfig, Overrides, FeatureInfo, SvgMetadata } from "./types";
+import { legacyNameMap, svgsMetadata } from "./svgs-index";
+import { rgbaStringToRgba } from "./color-utils";
+import {
+  getOuterStroke,
+  clipToParent,
+  paperPathToSVGString,
+  addFaceShadowToBody,
+  addClassToElement,
+  addWrapper,
+  getChildElement,
+  getChildElementByClass,
+  getHairAccent,
+  getSkinAccent,
+  getSkinShadow,
+} from "./display-utils";
 
 const addTransform = (element: SVGGraphicsElement, newTransform: string) => {
   const oldTransform = element.getAttribute("transform");
@@ -411,15 +34,6 @@ const rotateCentered = (element: SVGGraphicsElement, angle: number) => {
 
   addTransform(element, `rotate(${angle} ${cx} ${cy})`);
 };
-
-// const mirrorElement = (element: SVGGraphicsElement) => {
-
-//   const bbox = element.getBBox();
-//   const middleX = bbox.x + bbox.width / 2;
-//   const distanceFromMiddle = middleX - 200;
-
-//   addTransform(element, `translate(${-1 * distanceFromMiddle * 2}, 0)`);
-// }
 
 const scaleStrokeWidthAndChildren = (
   element: SVGGraphicsElement,
@@ -975,6 +589,7 @@ export const display = (
     {
       name: "jersey",
       positions: [null],
+      placeBeginning: true,
     },
     {
       name: "hairBg",
@@ -987,6 +602,7 @@ export const display = (
   paper.setup(document.createElement("canvas"));
   let clipParent: paper.Project;
   let faceOuterStrokePath: paper.Path;
+  let bodySVGElement: SVGSVGElement | null;
 
   for (const info of featureInfos) {
     const feature = face[info.name];
@@ -1014,8 +630,8 @@ export const display = (
 
     if (metadata?.clip) {
       if (info.name === "jersey") {
-        const bodySVGElement = getChildElementByClass(insideSVG, "body");
-        let jerseySVGElement = getChildElementByClass(insideSVG, "jersey");
+        bodySVGElement = getChildElementByClass(insideSVG, "body");
+        const jerseySVGElement = getChildElementByClass(insideSVG, "jersey");
 
         if (!bodySVGElement || !jerseySVGElement) {
           continue;
@@ -1035,21 +651,6 @@ export const display = (
           "afterbegin",
           addWrapper(bodyStrokeSVGString, "bodyStroke"),
         );
-
-        jerseySVGElement = getChildElementByClass(
-          insideSVG,
-          "jersey-clipToParent",
-        );
-
-        if (!jerseySVGElement) {
-          continue;
-        }
-
-        jerseySVGElement.remove();
-        insideSVG.insertAdjacentElement("afterbegin", jerseySVGElement);
-
-        bodySVGElement.remove();
-        insideSVG.insertAdjacentElement("afterbegin", bodySVGElement);
       } else {
         const childElement = getChildElement(
           insideSVG,
@@ -1074,10 +675,23 @@ export const display = (
         "beforeend",
         addWrapper(faceOuterStrokeSVGString, "outerStroke"),
       );
-    }
-
-    if (info.name === "body") {
+    } else if (info.name === "body") {
       addFaceShadowToBody(face, insideSVG, faceOuterStrokePath);
+    } else if (info.name === "jersey") {
+      bodySVGElement = getChildElementByClass(insideSVG, "body");
+      let jerseySVGElement = getChildElementByClass(insideSVG, "jersey");
+
+      jerseySVGElement = getChildElementByClass(insideSVG, "jersey");
+
+      if (!jerseySVGElement || !bodySVGElement) {
+        continue;
+      }
+
+      jerseySVGElement.remove();
+      insideSVG.insertAdjacentElement("afterbegin", jerseySVGElement);
+
+      bodySVGElement.remove();
+      insideSVG.insertAdjacentElement("afterbegin", bodySVGElement);
     }
   }
 
