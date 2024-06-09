@@ -331,6 +331,11 @@ export const svgMetadata = {
       sport: "football",
       legacyName: "football",
     },
+    "football-two-stripe": {
+      gender: "both",
+      sport: "football",
+      legacyName: "football5",
+    },
     "football-three-stripe": {
       gender: "both",
       sport: "football",

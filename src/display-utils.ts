@@ -64,7 +64,6 @@ export const clipToParent = (
   const baseShape = unitePaths(findPathItems(parentElement.clone()));
 
   const smallChildren = findPathItems(clippedItem);
-  console.log("smallChildren", { smallChildren });
   const childGroup = new paper.Group();
   for (const child of smallChildren) {
     // child.stroke = null;
@@ -144,8 +143,6 @@ export const getOuterStroke = (svgElement: SVGElement): paper.Path => {
   unitedPath.fillColor = new paper.Color("transparent");
   unitedPath.miterLimit = 1;
 
-  console.log("getOuterStroke", { importedItem, unitedPath, pathItems });
-
   // Remove the imported item and its children from the project
   importedItem.remove();
 
@@ -168,12 +165,6 @@ export const getShadowFromStroke = (
   shadowPath.opacity = 0.25;
   shadowPath.width *= 0.75;
   shadowPath.position.y += 10;
-  console.log("shadowPath", {
-    shadowPath,
-    bodyColor,
-    svgElement,
-    shadowPathFill: shadowPath.fillColor,
-  });
   return shadowPath;
 };
 
