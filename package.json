@@ -1,6 +1,6 @@
 {
   "name": "facesjs",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "description": "A JavaScript library for generating vector-based cartoon faces",
   "repository": {
     "type": "git",
@@ -79,13 +79,9 @@
     "svg-path-bbox": "1.2.5"
   },
   "exports": {
-    "import": {
+    ".": {
       "types": "./build/esmodules/index.d.ts",
       "default": "./build/esmodules/index.js"
-    },
-    "require": {
-      "types": "./build/commonjs/index.d.ts",
-      "default": "./build/commonjs/index.js"
     }
   },
   "main": "./build/commonjs/index.js",

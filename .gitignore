@@ -5,3 +5,5 @@ src/svgs.ts
 src/svgs-index.ts
 yarn-error.log
 *.DS_Store
+.yarn/*
+yarn.lock
